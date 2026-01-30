@@ -9,7 +9,8 @@ Book.init({
 
 google_books_id: {
       type: DataTypes.STRING(255),
-      allowNull: false
+      allowNull: false,
+      unique: true
    },
 
    title: {
@@ -23,20 +24,18 @@ google_books_id: {
 },
 
    release_date: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: true
    },
+   
    cover: {
-
-      type: DataTypes.STRING(255),
+      type: DataTypes.TEXT, //URL API
       allowNull: false,
-      validate: {
-         len: [0, 255],
-      }
    },
+
    synopsis: {
-      type: DataTypes.STRING(800),
-      allowNull: false
+      type: DataTypes.TEXT,
+      allowNull: true
    }
 }, {
    sequelize,
