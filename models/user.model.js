@@ -1,12 +1,12 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "./sequelize.client.js";
 
-export class Users extends Model { }
+export class User extends Model { }
 
 
-Users.init(
+User.init(
   {
-    name: {
+    username: {
       type: DataTypes.STRING(50),
       allowNull: false,
       unique: false,
