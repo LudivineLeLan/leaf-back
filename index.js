@@ -16,6 +16,13 @@ app.use(cors());
 
 app.use(xss());
 
+app.get('/', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    message: 'Leaf is live! 📚' 
+  });
+});
+
 // app.get('/health', (req, res) => {
 //   res.status(200).send('OK');
 // });
