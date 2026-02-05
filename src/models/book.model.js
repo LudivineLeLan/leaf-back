@@ -19,8 +19,8 @@ google_books_id: {
    },
 
    author: {
-      name: DataTypes.STRING(255),
-      lastname: DataTypes.STRING(255),
+      type: DataTypes.STRING(255),
+      allowNull: false
 },
 
    release_date: {

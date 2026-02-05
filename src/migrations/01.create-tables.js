@@ -1,7 +1,7 @@
 import { sequelize } from "../models/index.js";
 
 console.log("Creation des tables");
-await sequelize.sync({ force: true });
+await sequelize.sync({ alter: true });
 console.log("Tables créées avec succès");
 
 await sequelize.close();

@@ -1,11 +1,11 @@
-import { Author } from "./author.model";
-import { Book } from "./book.model";
-import { Genre } from "./genre.model";
-import { Serie } from "./serie.model";
-import { User} from "./user.model";
-import { UserBook } from "./userBook.model";
-import { UserSerie } from "./userSerie.model";
-import { Sequelize } from "sequelize";
+import { Author } from "./author.model.js";
+import { Book } from "./book.model.js";
+import { Genre } from "./genre.model.js";
+import { Serie } from "./serie.model.js";
+import { User} from "./user.model.js";
+import { UserBook } from "./userBook.model.js";
+import { UserSerie } from "./userSerie.model.js";
+import { sequelize } from "./sequelize.client.js";
 
 // USER <-> BOOK 
 User.belongsToMany(Book, { 
@@ -122,4 +122,4 @@ UserSerie.belongsTo(User, {
   as: 'user' 
 });
 
-export { User, Book, Author, Genre, Serie, UserBook, UserSerie, Sequelize };
+export { User, Book, Author, Genre, Serie, UserBook, UserSerie, sequelize };
