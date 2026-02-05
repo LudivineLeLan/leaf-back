@@ -21,7 +21,6 @@ Author.init(
   {
     sequelize,
     tableName: 'authors',
-    underscored: true,
     timestamps: false
   }
 );
