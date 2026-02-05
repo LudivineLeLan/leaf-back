@@ -2,43 +2,39 @@ import { DataTypes, Model } from "sequelize";
 import { sequelize } from './sequelize.client.js';
 
 
-export class Book extends Model { }
+export class Book extends Model {}
 
-
-Book.init({
-
-google_books_id: {
+Book.init(
+  {
+    googleBooksId: {
       type: DataTypes.STRING(255),
       allowNull: false,
       unique: true
-   },
-
-   title: {
+    },
+    title: {
       type: DataTypes.STRING(255),
       allowNull: false
-   },
-
-   author: {
-      type: DataTypes.STRING(255),
-      allowNull: false
-},
-
-   release_date: {
+    },
+    releaseDate: {
       type: DataTypes.DATEONLY,
       allowNull: true
-   },
-   
-   cover: {
-      type: DataTypes.TEXT, //URL API
-      allowNull: false,
-   },
-
-   synopsis: {
+    },
+    cover: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    },
+    synopsis: {
       type: DataTypes.TEXT,
       allowNull: true
-   }
-}, {
-   sequelize,
-   tableName: 'books',
-   underscored: true
-});
+    },
+    serieId: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    }
+  },
+  {
+    sequelize,
+    tableName: 'books',
+    underscored: true
+  }
+);

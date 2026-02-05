@@ -9,10 +9,11 @@ User.init(
     username: {
       type: DataTypes.STRING(50),
       allowNull: false,
-      unique: false,
     },
+
     age: {
       type: DataTypes.INTEGER,
+      allowNull: true,
 
     },
     email: {
@@ -32,5 +33,6 @@ User.init(
   {
     sequelize,
     tableName: "users",
+    underscored: true
   }
 );
