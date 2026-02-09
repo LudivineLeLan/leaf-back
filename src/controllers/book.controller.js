@@ -1,8 +1,9 @@
-import {Book} from "../models/index.js"
+import { Book, Author, Genre } from "../models/index.js";
+import { Op } from "sequelize";
 
 export const bookController = {
-async search(req, res) {
-  try {
+  async search(req, res) {
+    try {
       const { q, type } = req.query;
 
       if (!q || q.trim().length < 2) {
@@ -14,20 +15,22 @@ async search(req, res) {
 
       let results = [];
 
+      // Recherche par titre
       if (!type || type === "title") {
-        results = [...results, ...(await Book.findAll({
-          where: {
-            [Op.or]: [
-              { title: { [Op.iLike]: `%${searchTerm}%` } }
-            ]
-          },
-          include: [{ model: Author, as: "authors" }, { model: Genre, as: "genres" }],
+        const titleResults = await Book.findAll({
+          where: { title: { [Op.iLike]: `%${searchTerm}%` } },
+          include: [
+            { model: Author, as: "authors", through: { attributes: [] } },
+            { model: Genre, as: "genres", through: { attributes: [] } }
+          ],
           limit: 10
-        }))];
+        });
+        results = [...results, ...titleResults];
       }
 
+      // Recherche par auteur
       if (!type || type === "author") {
-        results = [...results, ...(await Book.findAll({
+        const authorResults = await Book.findAll({
           include: [
             {
               model: Author,
@@ -39,15 +42,19 @@ async search(req, res) {
                     { name: { [Op.iLike]: `%${word}%` } }
                   ]
                 }))
-              }
+              },
+              through: { attributes: [] }
             },
-            { model: Genre, as: "genres" }
+            { model: Genre, as: "genres", through: { attributes: [] } }
           ],
           limit: 10
-        }))];
+        });
+        results = [...results, ...authorResults];
       }
+
+      // Résultat unique
       const uniqueBooks = results.reduce((uniqueList, book) => {
-        if (!uniqueList.find(existingBook => existingBook.id === book.id)) uniqueList.push(book);
+        if (!uniqueList.find(b => b.id === book.id)) uniqueList.push(book);
         return uniqueList;
       }, []);
 
@@ -56,21 +63,23 @@ async search(req, res) {
       console.error(error);
       res.status(500).json({ error: "Erreur recherche" });
     }
-},
+  },
 
-async getDetails(req, res) {
-try {
+  async getDetails(req, res) {
+    try {
       const book = await Book.findByPk(req.params.id, {
         include: [
           { model: Author, as: "authors", through: { attributes: [] } },
-          { model: Genre, as: "genres", through: { attributes: [] } },
+          { model: Genre, as: "genres", through: { attributes: [] } }
         ],
       });
+
       if (!book) return res.status(404).json({ error: "Livre non trouvé" });
+
       res.json(book);
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: "Erreur serveur" });
     }
-  },
-}
+  }
 };
