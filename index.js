@@ -27,6 +27,13 @@ app.get('/', (req, res) => {
 //   res.status(200).send('OK');
 // });
 
+// Middleware de test pour user connecté
+app.use((req, res, next) => {
+  req.user = { id: 1 }; // remplace 1 par un userId existant dans ta table 'users'
+  next();
+});
+
+
 app.use(apiRouter);
 
 app.listen(PORT, () => {

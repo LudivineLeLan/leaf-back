@@ -18,6 +18,7 @@
     "start": "node index.js",
     "dev": "node --watch index.js",
     "db:create": "node ./src/migrations/create-tables.js",
+    "db:seed": "node ./src/migrations/seed-tables.js",
     "db:reset": "npm run db:create",
     "test": "npm run test"
   },
