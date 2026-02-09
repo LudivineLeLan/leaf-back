@@ -2,7 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { xss } from "express-xss-sanitizer";
-// import { apiRouter } from "./routers/index.js";
+import { apiRouter } from "./src/routers/index.js"
 
 
 const PORT = process.env.PORT || 3000;
@@ -27,7 +27,7 @@ app.get('/', (req, res) => {
 //   res.status(200).send('OK');
 // });
 
-// app.use(apiRouter);
+app.use(apiRouter);
 
 app.listen(PORT, () => {
   console.log(`Leaf is live on http://localhost:${PORT}`);
