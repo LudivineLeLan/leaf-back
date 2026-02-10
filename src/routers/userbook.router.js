@@ -5,3 +5,5 @@ export const userBookRouter = Router();
 
 userBookRouter.get("/search", userBookController.search);
 userBookRouter.get("/:id", userBookController.getDetails);
+userBookRouter.post("/:bookId", userBookController.addBookToUserList);
+userBookRouter.put("/:bookId", userBookController.updateReadStatus);

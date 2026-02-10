@@ -163,6 +163,4 @@ async updateReadStatus(req, res) {
     });
   }
 }
-
-
 };
