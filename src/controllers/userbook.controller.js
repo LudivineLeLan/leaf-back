@@ -41,7 +41,6 @@ async search(req, res) {
         order: [['book', 'title', 'ASC']],
         // where principal combine titre, auteurs et genres
         where: {
-          [Op.and]: { userId: req.user.id },
           [Op.or]: [
             { '$book.title$': { [Op.iLike]: `%${searchTerm}%` } },
             ...authorConditions,
