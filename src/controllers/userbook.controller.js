@@ -79,5 +79,47 @@ async search(req, res) {
       console.error(error);
       res.status(500).json({ error: "Erreur serveur" });
     }
+  },
+
+  // ajout d'un livre dans la bibliothèque
+
+  async addBookToUserList(req, res) {
+  try {
+    const userId = req.user.id;
+    const { bookId } = req.params;
+    const { status = 'to_read' } = req.body;
+
+    if (!bookId) {
+      return res.status(400).json({ message: "bookId requis" });
+    }
+
+    const book = await Book.findByPk(bookId);
+    if (!book) {
+      return res.status(404).json({ message: "Livre non trouvé." });
+    }
+
+    const existingEntry = await UserBook.findOne({
+      where: { userId, bookId },
+    });
+
+    if (existingEntry) {
+      return res.status(400).json({
+        message: "Ce livre est déjà dans votre bibliothèque.",
+      });
+    }
+
+    const userBook = await UserBook.create({
+      userId,
+      bookId,
+      status, // exemple : to_read | reading | finished
+    });
+
+    return res.status(201).json(userBook);
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Erreur serveur" });
   }
+}
+
 };
