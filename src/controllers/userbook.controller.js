@@ -6,13 +6,11 @@ export const userBookController = {
 	async search(req, res) {
 		try {
 			const { q } = req.query;
-
 			if (!q || q.trim().length < 2) return res.json([]);
 
 			const searchTerm = q.trim();
 			const words = searchTerm.split(/\s+/);
 
-			// Création de toutes les conditions possibles
 			const authorConditions = words.flatMap((word) => [
 				{ "$book.authors.name$": { [Op.iLike]: `%${word}%` } },
 				{ "$book.authors.firstname$": { [Op.iLike]: `%${word}%` } },
@@ -23,7 +21,6 @@ export const userBookController = {
 			}));
 
 			const results = await UserBook.findAll({
-				where: { userId: req.user.id },
 				include: [
 					{
 						model: Book,
@@ -46,15 +43,18 @@ export const userBookController = {
 					},
 				],
 				limit: 10,
-				// where sur la requête finale pour inclure tous les critères
 				subQuery: false,
 				order: [["book", "title", "ASC"]],
-				// where principal combine titre, auteurs et genres
 				where: {
-					[Op.or]: [
-						{ "$book.title$": { [Op.iLike]: `%${searchTerm}%` } },
-						...authorConditions,
-						...genreConditions,
+					[Op.and]: [
+						{ userId: req.user.id },
+						{
+							[Op.or]: [
+								{ "$book.title$": { [Op.iLike]: `%${searchTerm}%` } },
+								...authorConditions,
+								...genreConditions,
+							],
+						},
 					],
 				},
 			});
@@ -95,39 +95,27 @@ export const userBookController = {
 		}
 	},
 
-	// ajout d'un livre dans la bibliothèque
-
+	// Ajouter un livre dans la bibliothèque
 	async addBookToUserList(req, res) {
 		try {
 			const userId = req.user.id;
 			const { bookId } = req.params;
 			const { status = "to_read" } = req.body;
 
-			if (!bookId) {
-				return res.status(400).json({ message: "bookId requis" });
-			}
+			if (!bookId) return res.status(400).json({ message: "bookId requis" });
 
 			const book = await Book.findByPk(bookId);
-			if (!book) {
-				return res.status(404).json({ message: "Livre non trouvé." });
-			}
+			if (!book) return res.status(404).json({ message: "Livre non trouvé." });
 
 			const existingEntry = await UserBook.findOne({
 				where: { userId, bookId },
 			});
+			if (existingEntry)
+				return res
+					.status(400)
+					.json({ message: "Ce livre est déjà dans votre bibliothèque." });
 
-			if (existingEntry) {
-				return res.status(400).json({
-					message: "Ce livre est déjà dans votre bibliothèque.",
-				});
-			}
-
-			const userBook = await UserBook.create({
-				userId,
-				bookId,
-				status, // exemple : to_read | reading | finished
-			});
-
+			const userBook = await UserBook.create({ userId, bookId, status });
 			return res.status(201).json(userBook);
 		} catch (error) {
 			console.error(error);
@@ -135,46 +123,32 @@ export const userBookController = {
 		}
 	},
 
+	// Mettre à jour le statut de lecture
 	async updateReadStatus(req, res) {
 		try {
-			const { userId, bookId } = req.params;
-			const { toRead } = req.body;
+			const userId = req.user.id;
+			const { bookId } = req.params;
+			const { status } = req.body; // to_read | reading | finished
 
-			if (!userId || !bookId) {
+			if (!status || !["to_read", "reading", "finished"].includes(status)) {
+				return res.status(400).json({ message: "Statut invalide" });
+			}
+
+			const userBook = await UserBook.findOne({ where: { userId, bookId } });
+			if (!userBook)
 				return res
-					.status(400)
-					.json({ message: "userId et bookId sont requis" });
-			}
+					.status(404)
+					.json({ message: "Livre non trouvé dans votre bibliothèque." });
 
-			if (typeof toRead !== "boolean") {
-				return res.status(400).json({ message: "toRead doit être un booléen" });
-			}
-
-			const userBook = await UserBook.findOne({
-				where: {
-					user_id: userId,
-					book_id: bookId,
-				},
-			});
-
-			if (!userBook) {
-				return res.status(404).json({
-					message: "Livre non trouvé dans la booklist de l'utilisateur.",
-				});
-			}
-
-			userBook.toRead = toRead;
+			userBook.status = status;
 			await userBook.save();
 
-			return res.status(200).json({
-				message: "Statut de lecture mis à jour avec succès.",
-				data: userBook,
-			});
+			return res
+				.status(200)
+				.json({ message: "Statut mis à jour.", data: userBook });
 		} catch (error) {
-			return res.status(500).json({
-				error: "Erreur serveur",
-				message: error.message,
-			});
+			console.error(error);
+			return res.status(500).json({ message: "Erreur serveur" });
 		}
 	},
 };
