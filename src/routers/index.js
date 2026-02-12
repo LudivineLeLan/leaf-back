@@ -4,5 +4,5 @@ import { bookRouter } from "./book.router.js";
 
 export const apiRouter = Router();
 
-apiRouter.use(userBookRouter);
-apiRouter.use(bookRouter);
+apiRouter.use("/librairy", userBookRouter);
+apiRouter.use("/books", bookRouter);

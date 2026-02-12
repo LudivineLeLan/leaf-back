@@ -29,6 +29,7 @@
     "express": "^5.2.1",
     "express-xss-sanitizer": "^2.0.1",
     "joi": "^18.0.2",
+    "jsonwebtoken": "^9.0.3",
     "pg": "^8.18.0",
     "postgres": "^3.4.8",
     "sequelize": "^6.37.7"
