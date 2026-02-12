@@ -32,5 +32,8 @@
     "pg": "^8.18.0",
     "postgres": "^3.4.8",
     "sequelize": "^6.37.7"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.15"
   }
 }
