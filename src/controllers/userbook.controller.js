@@ -72,7 +72,7 @@ export const userBookController = {
 	async getDetails(req, res) {
 		try {
 			const userBook = await UserBook.findOne({
-				where: { id: req.params.id, userId: req.user.id },
+				where: { userId: req.params.id, bookId: req.user.id },
 				include: {
 					model: Book,
 					as: "book",
