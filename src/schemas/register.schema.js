@@ -39,9 +39,14 @@ export const registerSchema = Joi.object({
 				"Le fichier avatar doit être au format png, jpg, jpeg ou webp",
 		}),
 
-	age: Joi.number().integer().min(0).max(120).optional().messages({
-		"number.base": "L'âge doit être un nombre",
-		"number.min": "L'âge ne peut pas être négatif",
-		"number.max": "L'âge semble invalide",
-	}),
+	birthdate: Joi.date()
+		.iso()
+		.less("now")
+		.greater("1900-01-01")
+		.optional()
+		.messages({
+			"date.base": "La date de naissance doit être valide",
+			"date.less": "La date de naissance doit être dans le passé",
+			"date.greater": "La date de naissance semble invalide",
+		}),
 }).strict();
