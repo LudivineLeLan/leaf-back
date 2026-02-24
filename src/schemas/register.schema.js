@@ -38,15 +38,4 @@ export const registerSchema = Joi.object({
 			"string.pattern.base":
 				"Le fichier avatar doit être au format png, jpg, jpeg ou webp",
 		}),
-
-	birthdate: Joi.date()
-		.iso()
-		.less("now")
-		.greater("1900-01-01")
-		.optional()
-		.messages({
-			"date.base": "La date de naissance doit être valide",
-			"date.less": "La date de naissance doit être dans le passé",
-			"date.greater": "La date de naissance semble invalide",
-		}),
 }).strict();
