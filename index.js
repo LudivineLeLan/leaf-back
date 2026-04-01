@@ -2,8 +2,8 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { xss } from "express-xss-sanitizer";
-import { apiRouter } from "./src/routers/index.js"
-
+import { apiRouter } from "./src/routers/index.js";
+import cookieParser from "cookie-parser";
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -16,11 +16,13 @@ app.use(cors());
 
 app.use(xss());
 
-app.get('/', (req, res) => {
-  res.status(200).json({ 
-    status: 'OK', 
-    message: 'Leaf is live! 📚' 
-  });
+app.use(cookieParser());
+
+app.get("/", (req, res) => {
+	res.status(200).json({
+		status: "OK",
+		message: "Leaf is live! 📚",
+	});
 });
 
 // app.get('/health', (req, res) => {
@@ -29,13 +31,12 @@ app.get('/', (req, res) => {
 
 // Middleware de test pour user connecté
 app.use((req, res, next) => {
-  req.user = { id: 1 }; // remplace 1 par un userId existant dans ta table 'users'
-  next();
+	req.user = { id: 1 }; // remplace 1 par un userId existant dans ta table 'users'
+	next();
 });
-
 
 app.use(apiRouter);
 
 app.listen(PORT, () => {
-  console.log(`Leaf is live on http://localhost:${PORT}`);
+	console.log(`Leaf is live on http://localhost:${PORT}`);
 });
