@@ -1,4 +1,5 @@
 import { sequelize } from "../models/sequelize.client.js";
+import argon2 from "argon2";
 
 import { User } from "../models/user.model.js";
 import { Author } from "../models/author.model.js";
@@ -18,15 +19,22 @@ async function seed() {
 		await sequelize.authenticate();
 		console.log("Connexion à la DB réussie");
 
+		const hashedPassword1 = await argon2.hash("password123");
+		const hashedPassword2 = await argon2.hash("password123");
+
 		//  USERS
 		const users = await User.bulkCreate(
 			[
 				{
 					username: "Ludivine",
 					email: "ludivine@test.com",
-					password: "password123",
+					password: hashedPassword1,
 				},
-				{ username: "Alex", email: "alex@test.com", password: "password123" },
+				{
+					username: "Alex",
+					email: "alex@test.com",
+					password: hashedPassword2,
+				},
 			],
 			{ ignoreDuplicates: true },
 		);

@@ -14,9 +14,9 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cors());
 
-app.use(xss());
-
 app.use(cookieParser());
+
+app.use(xss());
 
 app.get("/", (req, res) => {
 	res.status(200).json({
@@ -28,12 +28,6 @@ app.get("/", (req, res) => {
 // app.get('/health', (req, res) => {
 //   res.status(200).send('OK');
 // });
-
-// Middleware de test pour user connecté
-app.use((req, res, next) => {
-	req.user = { id: 1 }; // remplace 1 par un userId existant dans ta table 'users'
-	next();
-});
 
 app.use(apiRouter);
 

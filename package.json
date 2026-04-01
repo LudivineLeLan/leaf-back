@@ -1,41 +1,41 @@
 {
-  "name": "leaf-back",
-  "version": "1.0.0",
-  "description": "\"A reading companion\"",
-  "homepage": "https://github.com/LudivineLeLan/leaf-back#readme",
-  "bugs": {
-    "url": "https://github.com/LudivineLeLan/leaf-back/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/LudivineLeLan/leaf-back.git"
-  },
-  "license": "ISC",
-  "author": "Ludivine Le Lan",
-  "type": "module",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js",
-    "dev": "node --watch index.js",
-    "db:create": "node ./src/migrations/create-tables.js",
-    "db:seed": "node ./src/migrations/seed-tables.js",
-    "db:reset": "npm run db:create",
-    "test": "npm run test"
-  },
-  "dependencies": {
-    "argon2": "^0.44.0",
-    "cookie-parser": "^1.4.7",
-    "cors": "^2.8.6",
-    "dotenv": "^17.2.3",
-    "express": "^5.2.1",
-    "express-xss-sanitizer": "^2.0.1",
-    "joi": "^18.0.2",
-    "jsonwebtoken": "^9.0.3",
-    "pg": "^8.18.0",
-    "postgres": "^3.4.8",
-    "sequelize": "^6.37.7"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.3.15"
-  }
+	"name": "leaf-back",
+	"version": "1.0.0",
+	"description": "\"A reading companion\"",
+	"homepage": "https://github.com/LudivineLeLan/leaf-back#readme",
+	"bugs": {
+		"url": "https://github.com/LudivineLeLan/leaf-back/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/LudivineLeLan/leaf-back.git"
+	},
+	"license": "ISC",
+	"author": "Ludivine Le Lan",
+	"type": "module",
+	"main": "index.js",
+	"scripts": {
+		"start": "node index.js",
+		"dev": "node --watch index.js",
+		"db:create": "node ./src/migrations/create-tables.js",
+		"db:seed": "node ./src/migrations/seed-tables.js",
+		"db:reset": "npm run db:create && npm run db:seed",
+		"test": "npm run test"
+	},
+	"dependencies": {
+		"argon2": "^0.44.0",
+		"cookie-parser": "^1.4.7",
+		"cors": "^2.8.6",
+		"dotenv": "^17.2.3",
+		"express": "^5.2.1",
+		"express-xss-sanitizer": "^2.0.1",
+		"joi": "^18.0.2",
+		"jsonwebtoken": "^9.0.3",
+		"pg": "^8.18.0",
+		"postgres": "^3.4.8",
+		"sequelize": "^6.37.7"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.3.15"
+	}
 }

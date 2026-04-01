@@ -39,15 +39,18 @@ export const authController = {
 
 	async login(req, res) {
 		try {
+			console.log("Body reçu:", req.body);
 			const { email, password } = Joi.attempt(req.body, loginSchema);
-
+			console.log("2 - Validation Joi OK");
 			const user = await User.findOne({ where: { email } });
+			console.log("3 - User trouvé:", user);
 
 			if (!user) {
 				return res.status(401).json({ error: "Identifiants invalides" });
 			}
 
 			const isValid = await argon2.verify(user.password, password);
+			console.log("4 - Password valide:", isValid);
 
 			if (!isValid) {
 				return res.status(401).json({ error: "Identifiants invalides" });
@@ -56,6 +59,7 @@ export const authController = {
 			const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
 				expiresIn: "7d",
 			});
+			console.log("5 - Token généré");
 
 			// Cookie
 			res.cookie("token", token, {
@@ -64,20 +68,29 @@ export const authController = {
 				sameSite: "lax",
 				maxAge: 7 * 24 * 60 * 60 * 1000,
 			});
+			console.log("6 - Cookie posé");
 
 			return res.status(200).json({
 				message: "Connecté",
-				user,
+				user: {
+					id: user.id,
+					username: user.username,
+					email: user.email,
+					avatar: user.avatar,
+				},
 			});
 		} catch (error) {
 			console.error("Error login:", error);
+			console.error("ERREUR EXACTE:", error.message);
 			return res.status(500).json({ error: "Erreur serveur" });
 		}
 	},
 
 	async getMe(req, res) {
 		try {
-			const user = await User.findByPk(req.user.id);
+			const user = await User.findByPk(req.user.id, {
+				attributes: ["id", "username", "email", "avatar"],
+			});
 
 			if (!user) {
 				return res.status(404).json({ error: "Utilisateur introuvable" });
