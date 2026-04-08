@@ -32,6 +32,9 @@ export const authController = {
 				message: "Compte créé avec succès",
 			});
 		} catch (error) {
+			if (error.isJoi) {
+				return res.status(400).json({ error: error.details[0].message });
+			}
 			console.error("Error register:", error);
 			return res.status(500).json({ error: "Erreur serveur" });
 		}
