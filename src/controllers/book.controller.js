@@ -1,4 +1,4 @@
-import googleBooksService from "../services/googlebooksservice.js";
+import GoogleBooksService from "../services/GoogleBooksService.js";
 import { UserBook, Book } from "../models/index.js";
 
 export const bookController = {
@@ -9,7 +9,7 @@ export const bookController = {
 
 			if (!q || q.trim().length < 2) return res.json([]);
 
-			const booksFromGoogle = await googleBooksService.search(q.trim());
+			const booksFromGoogle = await GoogleBooksService.search(q.trim());
 
 			// Si utilisateur connecté, récupérer ses livres déjà présents
 			let libraryGoogleIds = [];
@@ -44,7 +44,7 @@ export const bookController = {
 	async getByGoogleId(req, res) {
 		try {
 			const { googleId } = req.params;
-			const book = await googleBooksService.getById(googleId);
+			const book = await GoogleBooksService.getById(googleId);
 
 			// Vérifier si le livre est déjà dans la bibliothèque de utilisateur connecté
 			if (req.user) {
