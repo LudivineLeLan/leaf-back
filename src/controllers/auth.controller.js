@@ -14,7 +14,6 @@ export const authController = {
 			);
 
 			const existingUser = await User.findOne({ where: { email } });
-
 			if (existingUser) {
 				return res.status(409).json({ error: "Utilisateur déjà existant" });
 			}
@@ -42,39 +41,38 @@ export const authController = {
 
 	async login(req, res) {
 		try {
-			console.log("Body reçu:", req.body);
+			// Validation
 			const { email, password } = Joi.attempt(req.body, loginSchema);
-			console.log("2 - Validation Joi OK");
-			const user = await User.findOne({ where: { email } });
-			console.log("3 - User trouvé:", user);
 
+			// Récupération utilisateur
+			const user = await User.findOne({ where: { email } });
 			if (!user) {
 				return res.status(401).json({ error: "Identifiants invalides" });
 			}
 
+			// Vérification mot de passe
 			const isValid = await argon2.verify(user.password, password);
-			console.log("4 - Password valide:", isValid);
-
 			if (!isValid) {
 				return res.status(401).json({ error: "Identifiants invalides" });
 			}
 
+			// Création du token
 			const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
 				expiresIn: "7d",
 			});
-			console.log("5 - Token généré");
 
-			// Cookie
+			// Option : cookie
 			res.cookie("token", token, {
-				httpOnly: true, //token inaccessible en JS
-				secure: false, // true en prod seulement en https
+				httpOnly: true,
+				secure: false, // true en prod
 				sameSite: "lax",
 				maxAge: 7 * 24 * 60 * 60 * 1000,
 			});
-			console.log("6 - Cookie posé");
 
+			// Réponse finale
 			return res.status(200).json({
 				message: "Connecté",
+				token,
 				user: {
 					id: user.id,
 					username: user.username,
@@ -84,7 +82,9 @@ export const authController = {
 			});
 		} catch (error) {
 			console.error("Error login:", error);
-			console.error("ERREUR EXACTE:", error.message);
+			if (error.isJoi) {
+				return res.status(400).json({ error: error.details[0].message });
+			}
 			return res.status(500).json({ error: "Erreur serveur" });
 		}
 	},
