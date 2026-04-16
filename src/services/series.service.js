@@ -44,6 +44,7 @@ function extractSeriesInfo(title) {
 	// enlève la partie "tome X" du titre pour récupérer le nom de série
 	const name = title
 		.replace(/(tome|t\.|volume|vol\.|book|part)\s*\d+.*/i, "")
+		.replace(/\d+\s*$/, "")
 		.trim();
 
 	if (!name) return null;
