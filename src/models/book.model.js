@@ -27,7 +27,7 @@ Book.init(
 			allowNull: true,
 		},
 		serieId: {
-			type: DataTypes.UUID,
+			type: DataTypes.INTEGER,
 			allowNull: true,
 		},
 		seriesPosition: {
