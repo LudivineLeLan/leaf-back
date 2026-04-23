@@ -5,3 +5,4 @@ export const bookRouter = Router();
 
 bookRouter.get("/search", bookController.search);
 bookRouter.get("/:googleId", bookController.getByGoogleId);
+bookRouter.post("/import", bookController.importBook);

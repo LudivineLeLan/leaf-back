@@ -69,4 +69,29 @@ export const bookController = {
 			res.status(404).json({ error: "Livre non trouvé" });
 		}
 	},
+
+	async importBook(req, res) {
+		try {
+			const { googleBooksId, title, authors, thumbnail } = req.body;
+
+			if (!googleBooksId) {
+				return res.status(400).json({ message: "googleBooksId requis" });
+			}
+
+			const [book, created] = await Book.findOrCreate({
+				where: { googleBooksId },
+				defaults: {
+					title,
+					authors,
+					thumbnail,
+					googleBooksId,
+				},
+			});
+
+			return res.status(201).json(book);
+		} catch (error) {
+			console.error(error);
+			return res.status(500).json({ message: "Erreur serveur" });
+		}
+	},
 };
