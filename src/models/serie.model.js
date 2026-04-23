@@ -8,8 +8,14 @@ Serie.init(
 		name: {
 			type: DataTypes.STRING(255),
 			allowNull: false,
-			normalizedName: DataTypes.STRING,
 		},
+
+		normalizedName: {
+			type: DataTypes.STRING(255),
+			allowNull: true,
+			field: "normalized_name",
+		},
+
 		description: {
 			type: DataTypes.TEXT,
 			allowNull: true,

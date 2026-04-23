@@ -1,4 +1,5 @@
 import GoogleBooksService from "../services/GoogleBooksService.js";
+import { attachSerieToBook } from "../services/series.service.js";
 import { UserBook, Book } from "../models/index.js";
 
 export const bookController = {
@@ -71,7 +72,6 @@ export const bookController = {
 	},
 
 	async importBook(req, res) {
-
 		try {
 			const { googleBooksId, title, authors, thumbnail } = req.body;
 
@@ -79,16 +79,34 @@ export const bookController = {
 				return res.status(400).json({ message: "googleBooksId requis" });
 			}
 
+			// Récupérer les vraies données depuis Google Books
+			const googleData = await GoogleBooksService.getById(googleBooksId);
+
+			// 2. Créer ou retrouver le livre en base avec les données enrichies
 			const [book, created] = await Book.findOrCreate({
 				where: { googleBooksId },
 				defaults: {
-					title,
+					title: googleData.title || title,
 					googleBooksId,
-					cover: thumbnail || null,
+					cover: googleData.thumbnail || thumbnail || null,
+					synopsis: googleData.synopsis || null,
+					releaseDate: googleData.releaseDate || null,
+					seriesDetected: googleData.seriesDetected || false,
+					seriesPosition: googleData.seriesPosition || null,
 				},
 			});
 
-			return res.status(201).json(book);
+			if (created) {
+				try {
+					await attachSerieToBook(book);
+				} catch (err) {
+					console.error("Erreur attachSerieToBook :", err.message); // ← ajouter
+				}
+			}
+
+			await book.reload();
+
+			return res.status(created ? 201 : 200).json(book);
 		} catch (error) {
 			console.error(error);
 			return res.status(500).json({ message: "Erreur serveur" });

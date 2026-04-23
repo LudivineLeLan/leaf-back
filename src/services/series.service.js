@@ -18,41 +18,24 @@ function extractSeriesInfo(title) {
 	if (!title) return null;
 
 	const patterns = [
-		/tome\s*(\d+)/i,
-		/t\.\s*(\d+)/i,
-		/volume\s*(\d+)/i,
-		/vol\.\s*(\d+)/i,
-		/book\s*(\d+)/i,
-		/part\s*(\d+)/i,
-		/(\d+)\s*$/,
+		/(.+?)\s+tome\s*(\d+)/i,
+		/(.+?)\s+vol(?:ume|\.)?\s*(\d+)/i,
+		/(.+?)\s+part\s*(\d+)/i,
+		/(.+?)\s+book\s*(\d+)/i,
+		/(.+?)\s+(\d+)\s*$/,
 	];
-
-	let position = null;
-	let matchedPattern = null;
 
 	for (const pattern of patterns) {
 		const match = title.match(pattern);
 		if (match) {
-			position = parseInt(match[1], 10);
-			matchedPattern = pattern;
-			break;
+			return {
+				name: match[1].trim(),
+				position: parseInt(match[2], 10),
+			};
 		}
 	}
 
-	if (!position) return null;
-
-	// enlève la partie "tome X" du titre pour récupérer le nom de série
-	const name = title
-		.replace(/(tome|t\.|volume|vol\.|book|part)\s*\d+.*/i, "")
-		.replace(/\d+\s*$/, "")
-		.trim();
-
-	if (!name) return null;
-
-	return {
-		name,
-		position,
-	};
+	return null;
 }
 
 /**
@@ -89,6 +72,7 @@ async function attachSerieToBook(book) {
 
 	book.serieId = serie.id;
 	book.seriesPosition = seriesInfo.position;
+	book.seriesDetected = true;
 
 	await book.save();
 
