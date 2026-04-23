@@ -20,7 +20,7 @@ Book.init(
 		},
 		cover: {
 			type: DataTypes.TEXT,
-			allowNull: false,
+			allowNull: true,
 		},
 		synopsis: {
 			type: DataTypes.TEXT,

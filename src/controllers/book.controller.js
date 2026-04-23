@@ -71,6 +71,7 @@ export const bookController = {
 	},
 
 	async importBook(req, res) {
+
 		try {
 			const { googleBooksId, title, authors, thumbnail } = req.body;
 
@@ -82,9 +83,8 @@ export const bookController = {
 				where: { googleBooksId },
 				defaults: {
 					title,
-					authors,
-					thumbnail,
 					googleBooksId,
+					cover: thumbnail || null,
 				},
 			});
 
