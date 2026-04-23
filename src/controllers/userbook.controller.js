@@ -1,5 +1,6 @@
 import { UserBook, Book, Author, Genre } from "../models/index.js";
 import { Op } from "sequelize";
+import { attachSerieToBook } from "../services/series.service.js";
 
 export const userBookController = {
 	// Recherche dans la bibliothèque du user
@@ -116,6 +117,11 @@ export const userBookController = {
 					.json({ message: "Ce livre est déjà dans votre bibliothèque." });
 
 			const userBook = await UserBook.create({ userId, bookId, status });
+
+			if (book) {
+				await attachSerieToBook(book);
+			}
+
 			return res.status(201).json(userBook);
 		} catch (error) {
 			console.error(error);
