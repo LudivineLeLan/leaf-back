@@ -16,3 +16,8 @@ userBookRouter.put(
 	authenticate,
 	userBookController.updateReadStatus,
 );
+userBookRouter.delete(
+	"/:bookId",
+	authenticate,
+	userBookController.removeBookFromUserList,
+);

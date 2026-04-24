@@ -118,10 +118,6 @@ export const userBookController = {
 
 			const userBook = await UserBook.create({ userId, bookId, status });
 
-			if (book) {
-				await attachSerieToBook(book);
-			}
-
 			return res.status(201).json(userBook);
 		} catch (error) {
 			console.error(error);
