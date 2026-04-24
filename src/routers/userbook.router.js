@@ -5,7 +5,7 @@ import { userBookController } from "../controllers/index.js";
 export const userBookRouter = Router();
 
 userBookRouter.get("/search", authenticate, userBookController.search);
-userBookRouter.get("/:bookId", userBookController.getDetails);
+userBookRouter.get("/:bookId", authenticate, userBookController.getDetails);
 userBookRouter.post(
 	"/:bookId",
 	authenticate,
