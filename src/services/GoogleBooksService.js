@@ -13,7 +13,7 @@ class GoogleBooksService {
 		try {
 			// Construction de la requête de recherche
 			const searchQuery = `intitle:${encodeURIComponent(query)}`;
-			const url = `${this.baseURL}?q=${searchQuery}&maxResults=${maxResults}`;
+			const url = `${this.baseURL}?q=${searchQuery}&maxResults=${maxResults}&key=${process.env.GOOGLE_BOOKS_API_KEY}`;
 
 			const response = await fetch(url);
 
@@ -43,7 +43,7 @@ class GoogleBooksService {
 	 */
 	async getById(googleBooksId) {
 		try {
-			const url = `${this.baseURL}/${googleBooksId}`;
+			const url = `${this.baseURL}/${googleBooksId}?key=${process.env.GOOGLE_BOOKS_API_KEY}`
 			const response = await fetch(url);
 
 			if (!response.ok) {
