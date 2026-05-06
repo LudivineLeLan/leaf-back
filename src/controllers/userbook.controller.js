@@ -1,4 +1,4 @@
-import { UserBook, Book, Author, Genre } from "../models/index.js";
+import { UserBook, Book, Author, Genre, Serie } from "../models/index.js";
 import { Op } from "sequelize";
 import { attachSerieToBook } from "../services/series.service.js";
 
@@ -175,6 +175,33 @@ export const userBookController = {
 		} catch (error) {
 			console.error(error);
 			return res.status(500).json({ message: "Erreur serveur" });
+		}
+	},
+
+	// Afficher la bibliothèque
+	async getLibrary(req, res) {
+		try {
+			const userBooks = await UserBook.findAll({
+				where: { userId: req.user.id },
+				include: [
+					{
+						model: Book,
+						as: "book",
+						include: [
+							{
+								model: Serie,
+								as: "serie",
+							},
+						],
+					},
+				],
+				order: [["bookId", "DESC"]],
+			});
+
+			res.json(userBooks);
+		} catch (error) {
+			console.error(error);
+			res.status(500).json({ error: "Erreur serveur" });
 		}
 	},
 };

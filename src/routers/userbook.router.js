@@ -21,3 +21,4 @@ userBookRouter.delete(
 	authenticate,
 	userBookController.removeBookFromUserList,
 );
+userBookRouter.get("/", authenticate, userBookController.getLibrary);
