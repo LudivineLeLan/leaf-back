@@ -29,7 +29,7 @@ function extractSeriesInfo(title) {
 		const match = title.match(pattern);
 		if (match) {
 			return {
-				name: match[1].trim(),
+				name: match[1].replace(/[-–]\s*$/, "").trim(),
 				position: parseInt(match[2], 10),
 			};
 		}
