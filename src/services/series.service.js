@@ -30,7 +30,10 @@ function extractSeriesInfo(title) {
 		const match = title.match(pattern);
 		if (match) {
 			return {
-				name: match[1].replace(/\s*[-–:]\s*$/, "").trim(),
+				name: match[1]
+					.replace(/\s*[-–,:]\s*$/, "")
+					.replace(/[,،。]\s*$/, "")
+					.trim(),
 				position: parseInt(match[2], 10),
 			};
 		}
