@@ -23,13 +23,14 @@ function extractSeriesInfo(title) {
 		/(.+?)\s+part\s*(\d+)/i,
 		/(.+?)\s+book\s*(\d+)/i,
 		/(.+?)\s+(\d+)\s*$/,
+		/(.+?)\s+t\.\s*(\d+)/i,
 	];
 
 	for (const pattern of patterns) {
 		const match = title.match(pattern);
 		if (match) {
 			return {
-				name: match[1].replace(/[-–]\s*$/, "").trim(),
+				name: match[1].replace(/\s*[-–:]\s*$/, "").trim(),
 				position: parseInt(match[2], 10),
 			};
 		}
