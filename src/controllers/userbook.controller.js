@@ -40,6 +40,10 @@ export const userBookController = {
 								through: { attributes: [] },
 								required: false,
 							},
+							{
+								model: Serie,
+								as: "serie",
+							},
 						],
 					},
 				],
