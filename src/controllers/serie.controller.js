@@ -9,10 +9,11 @@ async function getSerieById(req, res) {
 				{
 					model: Book,
 					as: "books",
+					order: [[{ model: Book, as: "books" }, "seriesPosition", "ASC"]],
 				},
 			],
 
-			order: [[{ model: Book, as: "books" }, "seriesPosition", "ASC"]],
+			
 		});
 
 		if (!serie) {
