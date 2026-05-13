@@ -10,6 +10,8 @@ import { BookGenre } from "./bookGenre.model.js";
 import { SerieAuthor } from "./serieAuthor.model.js";
 import { SerieGenre } from "./serieGenre.model.js";
 import { sequelize } from "./sequelize.client.js";
+import { UserAuthor } from "./userAuthor.model.js";
+import { Notification } from "./notification.model.js";
 
 /*
    USER <-> BOOK
@@ -161,4 +163,59 @@ UserSerie.belongsTo(Serie, {
 	as: "serie",
 });
 
-export { User, Book, Author, Genre, Serie, UserBook, UserSerie, sequelize };
+// USER <-> AUTHOR (suivi)
+User.belongsToMany(Author, {
+	through: UserAuthor,
+	foreignKey: "userId",
+	as: "followedAuthors",
+});
+
+Author.belongsToMany(User, {
+	through: UserAuthor,
+	foreignKey: "authorId",
+	as: "followers",
+});
+
+User.hasMany(UserAuthor, {
+	foreignKey: "userId",
+	as: "userAuthors",
+});
+
+UserAuthor.belongsTo(User, {
+	foreignKey: "userId",
+	as: "user",
+});
+
+Author.hasMany(UserAuthor, {
+	foreignKey: "authorId",
+	as: "userAuthors",
+});
+
+UserAuthor.belongsTo(Author, {
+	foreignKey: "authorId",
+	as: "author",
+});
+
+// USER <-> NOTIFICATIONS
+User.hasMany(Notification, {
+	foreignKey: "userId",
+	as: "notifications",
+});
+
+Notification.belongsTo(User, {
+	foreignKey: "userId",
+	as: "user",
+});
+
+export {
+	User,
+	Book,
+	Author,
+	Genre,
+	Serie,
+	UserBook,
+	UserSerie,
+	UserAuthor,
+	Notification,
+	sequelize,
+};
