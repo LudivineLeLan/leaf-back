@@ -62,13 +62,13 @@ async function seed() {
 		const series = await Serie.bulkCreate(
 			[
 				{
-					title: "Harry Potter",
+					name: "Harry Potter",
 					description: "Saga magique",
 					type: "novel",
 					total_volumes: 7,
 				},
 				{
-					title: "Le Seigneur des Anneaux",
+					name: "Le Seigneur des Anneaux",
 					description: "Épopée fantastique",
 					type: "novel",
 					total_volumes: 3,
