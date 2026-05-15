@@ -121,11 +121,11 @@ async function checkNewBooksForAuthors() {
 }
 
 function startNotificationJob() {
-	cron.schedule("0 */6 * * *", async () => {
-		console.log("🔔 Vérification des nouvelles publications...");
+	cron.schedule("0 0 * * *", async () => {
+		console.log("Vérification des nouvelles publications...");
 		await checkNewBooksForSeries();
 		await checkNewBooksForAuthors();
-		console.log("✅ Vérification terminée");
+		console.log("Vérification terminée");
 	});
 }
 export {
