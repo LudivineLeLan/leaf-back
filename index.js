@@ -4,6 +4,7 @@ import cors from "cors";
 import { xss } from "express-xss-sanitizer";
 import { apiRouter } from "./src/routers/index.js";
 import cookieParser from "cookie-parser";
+import { startNotificationJob } from "./src/services/notification.service.js";
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -38,4 +39,5 @@ app.use(apiRouter);
 
 app.listen(PORT, () => {
 	console.log(`Leaf is live on http://localhost:${PORT}`);
+	startNotificationJob();
 });
