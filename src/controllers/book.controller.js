@@ -1,6 +1,6 @@
 import GoogleBooksService from "../services/GoogleBooksService.js";
 import { attachSerieToBook } from "../services/series.service.js";
-import { UserBook, Book } from "../models/index.js";
+import { UserBook, Book, Author, BookAuthor } from "../models/index.js";
 
 export const bookController = {
 	// Recherche catalogue Google
@@ -79,10 +79,8 @@ export const bookController = {
 				return res.status(400).json({ message: "googleBooksId requis" });
 			}
 
-			// Récupérer les vraies données depuis Google Books
 			const googleData = await GoogleBooksService.getById(googleBooksId);
 
-			// 2. Créer ou retrouver le livre en base avec les données enrichies
 			const [book, created] = await Book.findOrCreate({
 				where: { googleBooksId },
 				defaults: {
@@ -100,7 +98,25 @@ export const bookController = {
 				try {
 					await attachSerieToBook(book);
 				} catch (err) {
-					console.error("Erreur attachSerieToBook :", err.message); // ← ajouter
+					console.error("Erreur attachSerieToBook :", err.message);
+				}
+
+				// Créer les auteurs
+				if (googleData.authors?.length > 0) {
+					for (const authorName of googleData.authors) {
+						const parts = authorName.trim().split(" ");
+						const firstname = parts.slice(0, -1).join(" ") || authorName;
+						const name = parts.length > 1 ? parts[parts.length - 1] : "";
+
+						const [author] = await Author.findOrCreate({
+							where: { name, firstname },
+							defaults: { name, firstname },
+						});
+
+						await BookAuthor.findOrCreate({
+							where: { bookId: book.id, authorId: author.id },
+						});
+					}
 				}
 			}
 

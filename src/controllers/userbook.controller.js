@@ -84,6 +84,7 @@ export const userBookController = {
 					include: [
 						{ model: Author, as: "authors", through: { attributes: [] } },
 						{ model: Genre, as: "genres", through: { attributes: [] } },
+						{ model: Serie, as: "serie" },
 					],
 				},
 			});

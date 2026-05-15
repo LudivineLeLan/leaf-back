@@ -4,23 +4,23 @@ import { sequelize } from "./sequelize.client.js";
 export class Author extends Model {}
 
 Author.init(
-  {
-    name: {
-      type: DataTypes.STRING(100),
-      allowNull: false
-    },
-    firstname: {
-      type: DataTypes.STRING(100),
-      allowNull: false
-    },
-    bio: {
-      type: DataTypes.STRING(500),
-      allowNull: true
-    }
-  },
-  {
-    sequelize,
-    tableName: 'authors',
-    timestamps: false
-  }
+	{
+		name: {
+			type: DataTypes.STRING(100),
+			allowNull: true,
+		},
+		firstname: {
+			type: DataTypes.STRING(100),
+			allowNull: false,
+		},
+		bio: {
+			type: DataTypes.STRING(500),
+			allowNull: true,
+		},
+	},
+	{
+		sequelize,
+		tableName: "authors",
+		timestamps: false,
+	},
 );

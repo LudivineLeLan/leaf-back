@@ -5,7 +5,7 @@ import { Serie } from "./serie.model.js";
 import { User } from "./user.model.js";
 import { UserBook } from "./userBook.model.js";
 import { UserSerie } from "./userSerie.model.js";
-import { BookAuthor } from "./bookAuthor.models.js";
+import { BookAuthor } from "./bookAuthor.model.js";
 import { BookGenre } from "./bookGenre.model.js";
 import { SerieAuthor } from "./serieAuthor.model.js";
 import { SerieGenre } from "./serieGenre.model.js";
@@ -217,5 +217,6 @@ export {
 	UserSerie,
 	UserAuthor,
 	Notification,
+	BookAuthor,
 	sequelize,
 };
