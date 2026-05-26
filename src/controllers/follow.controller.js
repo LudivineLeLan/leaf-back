@@ -1,4 +1,4 @@
-import { UserSerie, UserAuthor } from "../models/index.js";
+import { UserSerie, UserAuthor, Serie, Author } from "../models/index.js";
 
 export const followController = {
 	async followSerie(req, res) {

@@ -1,9 +1,9 @@
 import GoogleBooksService from "../services/GoogleBooksService.js";
 import { attachSerieToBook } from "../services/series.service.js";
-import { UserBook, Book, Author, BookAuthor } from "../models/index.js";
+import { UserBook, Book, Author, BookAuthor, Serie } from "../models/index.js";
 
 export const bookController = {
-	// Recherche catalogue Google
+	// Search in Google catalog
 	async search(req, res) {
 		try {
 			const { q } = req.query;
@@ -12,7 +12,7 @@ export const bookController = {
 
 			const booksFromGoogle = await GoogleBooksService.search(q.trim());
 
-			// Si utilisateur connecté, récupérer ses livres déjà présents
+			// If user already logged, get library books
 			let libraryGoogleIds = [];
 			if (req.user) {
 				const userBooks = await UserBook.findAll({
@@ -41,13 +41,13 @@ export const bookController = {
 		}
 	},
 
-	// Détail catalogue Google
+	// Google catalog book details
 	async getByGoogleId(req, res) {
 		try {
 			const { googleId } = req.params;
 			const book = await GoogleBooksService.getById(googleId);
 
-			// Vérifier si le livre est déjà dans la bibliothèque de utilisateur connecté
+			// Check if book already in user library
 			if (req.user) {
 				const userBook = await UserBook.findOne({
 					where: { userId: req.user.id },
@@ -101,7 +101,7 @@ export const bookController = {
 					console.error("Erreur attachSerieToBook :", err.message);
 				}
 
-				// Créer les auteurs
+				// Create authors
 				if (googleData.authors?.length > 0) {
 					for (const authorName of googleData.authors) {
 						const parts = authorName.trim().split(" ");
@@ -126,6 +126,39 @@ export const bookController = {
 		} catch (error) {
 			console.error(error);
 			return res.status(500).json({ message: "Erreur serveur" });
+		}
+	},
+
+	async getBookById(req, res) {
+		try {
+			const { bookId } = req.params;
+
+			const book = await Book.findByPk(bookId, {
+				include: [
+					{ model: Author, as: "authors", through: { attributes: [] } },
+					{ model: Serie, as: "serie" },
+				],
+			});
+
+			if (!book) {
+				return res.status(404).json({ error: "Livre non trouvé" });
+			}
+
+			let isInLibrary = false;
+			let userStatus = null;
+
+			if (req.user) {
+				const userBook = await UserBook.findOne({
+					where: { userId: req.user.id, bookId },
+				});
+				isInLibrary = !!userBook;
+				userStatus = userBook?.status || null;
+			}
+
+			return res.json({ ...book.toJSON(), isInLibrary, userStatus });
+		} catch (error) {
+			console.error(error);
+			return res.status(500).json({ error: "Erreur serveur" });
 		}
 	},
 };
