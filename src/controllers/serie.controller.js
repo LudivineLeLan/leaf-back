@@ -12,12 +12,11 @@ async function getSerieById(req, res) {
 
 		if (!serie) return res.status(404).json({ message: "Serie not found" });
 
-		// Nettoyer le nom de série avant la recherche
 		const cleanName = serie.name.replace(/[-–]\s*$/, "").trim();
+		const books = serie.books || [];
 
 		const googleResults = await GoogleBooksService.search(cleanName, 40);
 
-		// Dédupliquer par googleBooksId
 		const seen = new Set();
 		const uniqueResults = googleResults.filter((book) => {
 			if (seen.has(book.googleBooksId)) return false;
@@ -27,25 +26,25 @@ async function getSerieById(req, res) {
 
 		const allVolumes = uniqueResults
 			.map((googleBook) => {
-				// Extraire la position depuis le titre
 				const seriesInfo = extractSeriesInfo(googleBook.title);
-				if (!seriesInfo) return null;
-
-				const bookInLibrary = serie.books.find(
+				const bookInLibrary = books.find(
 					(book) => book.googleBooksId === googleBook.googleBooksId,
 				);
-
 				return {
 					googleBooksId: googleBook.googleBooksId,
 					title: googleBook.title,
 					cover: googleBook.thumbnail,
-					seriesPosition: bookInLibrary?.seriesPosition || seriesInfo.position,
+					seriesPosition:
+						bookInLibrary?.seriesPosition || seriesInfo?.position || null,
 					isInLibrary: !!bookInLibrary,
 					libraryBookId: bookInLibrary?.id || null,
 				};
 			})
-			.filter(Boolean)
-			.sort((a, b) => a.seriesPosition - b.seriesPosition);
+			.sort((a, b) => {
+				if (a.seriesPosition === null) return 1;
+				if (b.seriesPosition === null) return -1;
+				return a.seriesPosition - b.seriesPosition;
+			});
 
 		return res.json({
 			id: serie.id,
@@ -59,4 +58,21 @@ async function getSerieById(req, res) {
 	}
 }
 
-export { getSerieById };
+async function updateSerie(req, res) {
+	try {
+		const { id } = req.params;
+		const { total_volumes } = req.body;
+
+		const serie = await Serie.findByPk(id);
+		if (!serie) return res.status(404).json({ message: "Serie not found" });
+
+		await serie.update({ total_volumes });
+
+		return res.json(serie);
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ message: "Internal server error" });
+	}
+}
+
+export { getSerieById, updateSerie };
