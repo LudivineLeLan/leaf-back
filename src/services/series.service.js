@@ -1,7 +1,7 @@
 import { Serie } from "../models/index.js";
 
 /**
- * Normalise le nom d'une série pour éviter les doublons
+ * Normalize serie's name to avoid doubles
  */
 function normalizeSerieName(name) {
 	return name
@@ -12,7 +12,7 @@ function normalizeSerieName(name) {
 }
 
 /**
- * Détecte une série et un numéro de tome à partir du titre
+ * Find serie & tome number from book title
  */
 function extractSeriesInfo(title) {
 	if (!title) return null;
@@ -43,7 +43,7 @@ function extractSeriesInfo(title) {
 }
 
 /**
- * Trouve ou crée une série en base
+ * Find or create serie in db
  */
 async function findOrCreateSerie(name) {
 	const normalizedName = normalizeSerieName(name);
@@ -63,7 +63,7 @@ async function findOrCreateSerie(name) {
 }
 
 /**
- * Attache automatiquement une série à un livre
+ * Links serie to book
  */
 async function attachSerieToBook(book) {
 	if (!book || !book.title) return book;

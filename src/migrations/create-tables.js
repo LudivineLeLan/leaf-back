@@ -2,7 +2,7 @@ import { sequelize } from "../models/index.js";
 
 console.log("Création des tables...");
 
-// Recréation propre de toutes les tables
+// Recreate tables
 await sequelize.sync({ force: true });
 
 console.log("Tables créées avec succès");

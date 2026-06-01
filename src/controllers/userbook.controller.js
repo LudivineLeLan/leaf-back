@@ -3,7 +3,7 @@ import { Op } from "sequelize";
 import { attachSerieToBook } from "../services/series.service.js";
 
 export const userBookController = {
-	// Recherche dans la bibliothèque du user
+	// Search in user's library
 	async search(req, res) {
 		try {
 			const { q } = req.query;
@@ -73,7 +73,7 @@ export const userBookController = {
 		}
 	},
 
-	// Détails d'un livre
+	// Book details
 	async getDetails(req, res) {
 		try {
 			const userBook = await UserBook.findOne({
@@ -101,7 +101,7 @@ export const userBookController = {
 		}
 	},
 
-	// Ajouter un livre dans la bibliothèque
+	// Add book to library
 	async addBookToUserList(req, res) {
 		try {
 			const userId = req.user.id;
@@ -130,7 +130,7 @@ export const userBookController = {
 		}
 	},
 
-	// Mettre à jour le statut de lecture
+	// Update reading status
 	async updateReadStatus(req, res) {
 		try {
 			const userId = req.user.id;
@@ -159,7 +159,7 @@ export const userBookController = {
 		}
 	},
 
-	// Supprimer un livre de la bibliothèque
+	// Delete book from library
 	async removeBookFromUserList(req, res) {
 		try {
 			const userId = req.user.id;
@@ -183,7 +183,7 @@ export const userBookController = {
 		}
 	},
 
-	// Afficher la bibliothèque
+	// Show library
 	async getLibrary(req, res) {
 		try {
 			const userBooks = await UserBook.findAll({

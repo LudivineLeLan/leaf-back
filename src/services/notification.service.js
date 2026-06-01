@@ -50,7 +50,7 @@ async function checkNewBooksForSeries() {
 				});
 
 				if (!existingBook) {
-					// Vérifier qu'on n'a pas déjà créé cette notification
+					// Check if notification already exists or not
 					const existingNotif = await Notification.findOne({
 						where: { userId: userSerie.userId, googleBooksId },
 					});

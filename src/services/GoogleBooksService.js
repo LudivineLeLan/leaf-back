@@ -4,14 +4,14 @@ class GoogleBooksService {
 	}
 
 	/**
-	 * Recherche des livres
-	 * @param {string} query - Terme de recherche
-	 * @param {number} maxResults - Nombre max de résultats (défaut: 10)
-	 * @returns {Promise<Array>} - Liste des livres trouvés
+	 * Books search
+	 * @param {string} query - Search query
+	 * @param {number} maxResults - Results (default: max 10)
+	 * @returns {Promise<Array>} - List of books
 	 */
 	async search(query, maxResults = 10) {
 		try {
-			// Construction de la requête de recherche
+			// Search query steps
 			const searchQuery = `intitle:${encodeURIComponent(query)}`;
 			const url = `${this.baseURL}?q=${searchQuery}&maxResults=${maxResults}&key=${process.env.GOOGLE_BOOKS_API_KEY}`;
 
@@ -23,12 +23,12 @@ class GoogleBooksService {
 
 			const data = await response.json();
 
-			// Retourne un tableau vide si pas de résultats
+			// Empty array if no result
 			if (!data.items || data.items.length === 0) {
 				return [];
 			}
 
-			// Formate les résultats pour ne garder que l'essentiel
+			// Keeps only essentials
 			return data.items.map((book) => this.formatBook(book));
 		} catch (error) {
 			console.error("Error searching books:", error.message);
@@ -37,13 +37,13 @@ class GoogleBooksService {
 	}
 
 	/**
-	 * Récupère les détails d'un livre par son ID Google Books
-	 * @param {string} googleBooksId - ID du livre sur Google Books
-	 * @returns {Promise<Object>} - Détails du livre
+	 * Get book details via Google Books id
+	 * @param {string} googleBooksId - Google books id
+	 * @returns {Promise<Object>} - Book details
 	 */
 	async getById(googleBooksId) {
 		try {
-			const url = `${this.baseURL}/${googleBooksId}?key=${process.env.GOOGLE_BOOKS_API_KEY}`
+			const url = `${this.baseURL}/${googleBooksId}?key=${process.env.GOOGLE_BOOKS_API_KEY}`;
 			const response = await fetch(url);
 
 			if (!response.ok) {
@@ -59,9 +59,9 @@ class GoogleBooksService {
 	}
 
 	/**
-	 * Formate un livre pour ne garder que les infos utiles
-	 * @param {Object} book - Livre brut de l'API
-	 * @returns {Object} - Livre formaté
+	 * Keeps only useful informations
+	 * @param {Object} book - Book from API
+	 * @returns {Object} - Formated book
 	 */
 	formatBook(book) {
 		const info = book.volumeInfo || {};
@@ -77,16 +77,16 @@ class GoogleBooksService {
 			language: info.language || null,
 			categories: info.categories || [],
 
-			// Infos supplémentaires pour mangas
+			// Additionnal infos for mangas
 			isbn10: this.extractISBN(info.industryIdentifiers, "ISBN_10"),
 			isbn13: this.extractISBN(info.industryIdentifiers, "ISBN_13"),
 		};
 	}
 
 	/**
-	 * Extrait un ISBN spécifique
-	 * @param {Array} identifiers - Liste des identifiants
-	 * @param {string} type - Type d'ISBN (ISBN_10 ou ISBN_13)
+	 * Extract specific ISBN
+	 * @param {Array} identifiers - List of id
+	 * @param {string} type - ISBN type (ISBN_10 or ISBN_13)
 	 * @returns {string|null}
 	 */
 	extractISBN(identifiers, type) {
@@ -96,5 +96,4 @@ class GoogleBooksService {
 	}
 }
 
-// Export de l'instance unique du service
 export default new GoogleBooksService();

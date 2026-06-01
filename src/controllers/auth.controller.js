@@ -44,19 +44,19 @@ export const authController = {
 			// Validation
 			const { email, password } = Joi.attempt(req.body, loginSchema);
 
-			// Récupération utilisateur
+			// Get user
 			const user = await User.findOne({ where: { email } });
 			if (!user) {
 				return res.status(401).json({ error: "Identifiants invalides" });
 			}
 
-			// Vérification mot de passe
+			// Password check
 			const isValid = await argon2.verify(user.password, password);
 			if (!isValid) {
 				return res.status(401).json({ error: "Identifiants invalides" });
 			}
 
-			// Création du token
+			// Token creation
 			const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
 				expiresIn: "7d",
 			});
@@ -69,7 +69,7 @@ export const authController = {
 			// 	maxAge: 7 * 24 * 60 * 60 * 1000,
 			// });
 
-			// Réponse finale
+			// Final answer
 			return res.status(200).json({
 				message: "Connecté",
 				token,
