@@ -1,8 +1,7 @@
 import jwt from "jsonwebtoken";
 
 export function authenticate(req, res, next) {
-	const authHeader = req.headers.authorization;
-	const token = authHeader?.split(" ")[1]; // "Bearer <token>"
+	const token = req.cookies?.token;
 
 	if (!token) {
 		return res.status(401).json({ error: "Accès refusé" });
@@ -18,8 +17,7 @@ export function authenticate(req, res, next) {
 }
 
 export function optionalAuthenticate(req, res, next) {
-	const authHeader = req.headers.authorization;
-	const token = authHeader?.split(" ")[1];
+	const token = req.cookies?.token;
 
 	if (!token) return next(); // no token, continue without user
 
