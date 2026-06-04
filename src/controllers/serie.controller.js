@@ -1,4 +1,4 @@
-import { Serie, Book } from "../models/index.js";
+import { Serie, Book, Author } from "../models/index.js";
 import GoogleBooksService from "../services/GoogleBooksService.js";
 import { extractSeriesInfo } from "../services/series.service.js";
 
@@ -7,7 +7,15 @@ async function getSerieById(req, res) {
 		const { id } = req.params;
 
 		const serie = await Serie.findByPk(id, {
-			include: [{ model: Book, as: "books" }],
+			include: [
+				{
+					model: Book,
+					as: "books",
+					include: [
+						{ model: Author, as: "authors", through: { attributes: [] } },
+					],
+				},
+			],
 		});
 
 		if (!serie) return res.status(404).json({ message: "Serie not found" });
@@ -15,13 +23,25 @@ async function getSerieById(req, res) {
 		const cleanName = serie.name.replace(/[-–]\s*$/, "").trim();
 		const books = serie.books || [];
 
-		const googleResults = await GoogleBooksService.search(cleanName, 40);
+		const authorNames = [
+			...new Set(
+				books
+					.flatMap((book) => book.authors || [])
+					.map((author) => `${author.firstname || ""} ${author.name}`.trim()),
+			),
+		];
+
+		const searchQuery =
+			authorNames.length > 0 ? `${cleanName} ${authorNames[0]}` : cleanName;
+
+		const googleResults = await GoogleBooksService.search(searchQuery, 40);
 
 		const seen = new Set();
 		const uniqueResults = googleResults.filter((book) => {
 			if (seen.has(book.googleBooksId)) return false;
 			seen.add(book.googleBooksId);
-			return true;
+			// Keep only books whose title starts with the serie name
+			return book.title.toLowerCase().startsWith(cleanName.toLowerCase());
 		});
 
 		const allVolumes = uniqueResults
