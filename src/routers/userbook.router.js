@@ -4,6 +4,12 @@ import { userBookController } from "../controllers/index.js";
 
 export const userBookRouter = Router();
 
+userBookRouter.get(
+	"/overview",
+	authenticate,
+	userBookController.getLibraryOverview,
+);
+
 userBookRouter.get("/search", authenticate, userBookController.search);
 userBookRouter.get("/:bookId", authenticate, userBookController.getDetails);
 userBookRouter.post(

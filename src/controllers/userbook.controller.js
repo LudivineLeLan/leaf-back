@@ -209,4 +209,71 @@ export const userBookController = {
 			res.status(500).json({ error: "Erreur serveur" });
 		}
 	},
+
+	async getLibraryOverview(req, res) {
+		try {
+			const userId = req.user.id;
+
+			const userBooks = await UserBook.findAll({
+				where: { userId },
+				include: [
+					{
+						model: Book,
+						as: "book",
+						include: [{ model: Serie, as: "serie" }],
+					},
+				],
+			});
+
+			// Group by serie
+			const seriesMap = new Map();
+			const standalone = [];
+
+			for (const userBook of userBooks) {
+				const book = userBook.book;
+				if (!book) continue;
+
+				if (book.serie) {
+					if (!seriesMap.has(book.serie.id)) {
+						seriesMap.set(book.serie.id, {
+							id: book.serie.id,
+							name: book.serie.name,
+							total_volumes: book.serie.total_volumes,
+							cover: null,
+							booksOwned: 0,
+							books: [],
+						});
+					}
+					const serieData = seriesMap.get(book.serie.id);
+					serieData.booksOwned += 1;
+					serieData.books.push({
+						id: book.id,
+						title: book.title,
+						cover: book.cover,
+						seriesPosition: book.seriesPosition,
+						status: userBook.status,
+					});
+					// Use cover of first tome
+					if (!serieData.cover && book.cover) {
+						serieData.cover = book.cover;
+					}
+				} else {
+					standalone.push({
+						id: book.id,
+						title: book.title,
+						cover: book.cover,
+						status: userBook.status,
+					});
+				}
+			}
+
+			return res.json({
+				series: Array.from(seriesMap.values()),
+				standalone,
+			});
+		} catch (error) {
+			console.error(error);
+			return res.status(500).json({ message: "Erreur serveur" });
+		}
+	},
 };

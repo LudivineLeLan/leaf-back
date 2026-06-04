@@ -24,6 +24,7 @@ function extractSeriesInfo(title) {
 		/(.+?)\s+book\s*(\d+)/i,
 		/(.+?)\s+(\d+)\s*$/,
 		/(.+?)\s+t\.\s*(\d+)/i,
+		/(.+?)\s+t(\d+)\s*$/i, // for "T01" without dot
 	];
 
 	for (const pattern of patterns) {
