@@ -7,12 +7,17 @@ export const bookController = {
 	async search(req, res) {
 		try {
 			const { q } = req.query;
-
 			if (!q || q.trim().length < 2) return res.json([]);
 
-			const booksFromGoogle = await GoogleBooksService.search(q.trim());
+			// Detect author search
+			let searchQuery = q.trim();
+			if (searchQuery.startsWith("auteur:")) {
+				const authorName = searchQuery.replace("auteur:", "").trim();
+				searchQuery = `inauthor:${authorName}`;
+			}
 
-			// If user already logged, get library books
+			const booksFromGoogle = await GoogleBooksService.searchRaw(searchQuery);
+
 			let libraryGoogleIds = [];
 			if (req.user) {
 				const userBooks = await UserBook.findAll({
@@ -23,7 +28,6 @@ export const bookController = {
 						attributes: ["googleBooksId"],
 					},
 				});
-
 				libraryGoogleIds = userBooks.map(
 					(userBook) => userBook.book.googleBooksId,
 				);
@@ -40,7 +44,6 @@ export const bookController = {
 			res.status(500).json({ error: "Erreur lors de la recherche de livres" });
 		}
 	},
-
 	// Google catalog book details
 	async getByGoogleId(req, res) {
 		try {

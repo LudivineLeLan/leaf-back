@@ -1,29 +1,77 @@
-import { Author } from '../models/index.js';
+import { Author, Book, UserBook } from "../models/index.js";
+import GoogleBooksService from "../services/GoogleBooksService.js";
 
 export const authorController = {
+	async getAllAuthors(req, res) {
+		try {
+			const authors = await Author.findAll({});
+			res.json(authors);
+		} catch (error) {
+			res
+				.status(500)
+				.json({ error: "Erreur lors de la récupération des auteurs" });
+		}
+	},
 
-  async getAllAuthors(req, res) {
-    try {
-      const authors = await Author.findAll({});
-      res.json(authors);
-    } catch (error) {
-      res.status(500).json({ error: 'Erreur lors de la récupération des auteurs' });
-    }
-  },
+	async getAuthorById(req, res) {
+		try {
+			const { authorId } = req.params;
 
-  async getAuthorById(req, res) {
-    try {
-      const { id } = req.params;
-      if (isNaN(id)) {
-        return res.status(400).json({ error: "Format d'ID invalide" });
-      }
-      const author = await Author.findByPk(id);
-      if (!author) {
-        return res.status(404).json({ error: "Auteur non trouvé. Veuillez vérifier l’ID fourni" });
-      }
-      res.status(200).json(author);
-    } catch (err) {
-      res.status(500).json({ error: "Erreur serveur" });
-    }
-  },
+			const author = await Author.findByPk(authorId);
+			if (!author) return res.status(404).json({ message: "Author not found" });
+
+			const fullName = `${author.firstname || ""} ${author.name}`.trim();
+
+			// Search Google Books by author name
+			const googleResults = await GoogleBooksService.search(fullName, 40);
+
+			// Deduplicate
+			const seen = new Set();
+			const uniqueResults = googleResults.filter((book) => {
+				if (seen.has(book.googleBooksId)) return false;
+				seen.add(book.googleBooksId);
+				return true;
+			});
+
+			// Check if books are in user library
+			let libraryGoogleIds = [];
+			if (req.user) {
+				const userBooks = await UserBook.findAll({
+					where: { userId: req.user.id },
+					include: {
+						model: Book,
+						as: "book",
+						attributes: ["googleBooksId"],
+					},
+				});
+				libraryGoogleIds = userBooks.map((ub) => ub.book.googleBooksId);
+			}
+
+			const books = uniqueResults
+				.filter((book) =>
+					book.authors?.some(
+						(author) =>
+							author.toLowerCase().includes(fullName.toLowerCase()) ||
+							fullName.toLowerCase().includes(author.toLowerCase()),
+					),
+				)
+				.map((book) => ({
+					googleBooksId: book.googleBooksId,
+					title: book.title,
+					cover: book.thumbnail,
+					publishedDate: book.publishedDate,
+					isInLibrary: libraryGoogleIds.includes(book.googleBooksId),
+				}));
+
+			return res.json({
+				id: author.id,
+				name: author.name,
+				firstname: author.firstname,
+				books,
+			});
+		} catch (error) {
+			console.error(error);
+			return res.status(500).json({ message: "Internal server error" });
+		}
+	},
 };

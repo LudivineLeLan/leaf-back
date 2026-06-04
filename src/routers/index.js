@@ -6,6 +6,7 @@ import { serieRouter } from "./serie.router.js";
 import { followRouter } from "./follow.router.js";
 import { notificationRouter } from "./notification.router.js";
 import { statsRouter } from "./stats.router.js";
+import { authorRouter } from "./author.router.js";
 
 export const apiRouter = Router();
 
@@ -16,3 +17,4 @@ apiRouter.use("/serie", serieRouter);
 apiRouter.use("/follows", followRouter);
 apiRouter.use("/notifications", notificationRouter);
 apiRouter.use("/stats", statsRouter);
+apiRouter.use("/authors", authorRouter);

@@ -12,7 +12,13 @@ class GoogleBooksService {
 	async search(query, maxResults = 10) {
 		try {
 			// Search query steps
-			const searchQuery = `intitle:${encodeURIComponent(query)}`;
+			let searchQuery;
+			if (query.startsWith("auteur:")) {
+				const authorName = query.replace("auteur:", "").trim();
+				searchQuery = `inauthor:${encodeURIComponent(authorName)}`;
+			} else {
+				searchQuery = `intitle:${encodeURIComponent(query)}`;
+			}
 			const url = `${this.baseURL}?q=${searchQuery}&maxResults=${maxResults}&key=${process.env.GOOGLE_BOOKS_API_KEY}`;
 
 			const response = await fetch(url);
@@ -36,6 +42,20 @@ class GoogleBooksService {
 		}
 	}
 
+	async searchRaw(query, maxResults = 10) {
+		try {
+			const url = `${this.baseURL}?q=${encodeURIComponent(query)}&maxResults=${maxResults}&key=${process.env.GOOGLE_BOOKS_API_KEY}`;
+			const response = await fetch(url);
+			if (!response.ok)
+				throw new Error(`Google Books API error: ${response.status}`);
+			const data = await response.json();
+			if (!data.items || data.items.length === 0) return [];
+			return data.items.map((book) => this.formatBook(book));
+		} catch (error) {
+			console.error("Error searching books:", error.message);
+			throw error;
+		}
+	}
 	/**
 	 * Get book details via Google Books id
 	 * @param {string} googleBooksId - Google books id
