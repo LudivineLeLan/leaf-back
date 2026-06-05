@@ -6,8 +6,10 @@ import { Serie } from "../models/index.js";
 function normalizeSerieName(name) {
 	return name
 		.toLowerCase()
-		.normalize("NFD") // enlève accents
-		.replace(/[\u0300-\u036f]/g, "")
+		.normalize("NFD")
+		.replace(/[\u0300-\u036f]/g, "") // Remove accents
+		.replace(/[-–_]/g, " ") // Replace dashes by spaces
+		.replace(/\s+/g, " ") // Remove extra spaces
 		.trim();
 }
 

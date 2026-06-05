@@ -1,4 +1,3 @@
-// src/migrations/fix-series.js
 import { sequelize } from "../models/index.js";
 import { Book } from "../models/book.model.js";
 import { attachSerieToBook } from "../services/series.service.js";
