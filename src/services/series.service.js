@@ -73,15 +73,30 @@ async function attachSerieToBook(book) {
 
 	const seriesInfo = extractSeriesInfo(book.title);
 
-	if (!seriesInfo) return book;
+	if (seriesInfo) {
+		// Pattern detected — find or create serie
+		const serie = await findOrCreateSerie(seriesInfo.name);
+		book.serieId = serie.id;
+		book.seriesPosition = seriesInfo.position;
+		book.seriesDetected = true;
+		await book.save();
+		return book;
+	}
 
-	const serie = await findOrCreateSerie(seriesInfo.name);
+	// No pattern — try to match with existing series by name
+	const allSeries = await Serie.findAll();
+	for (const serie of allSeries) {
+		const normalizedTitle = normalizeSerieName(book.title);
+		const normalizedSerieName =
+			serie.normalizedName || normalizeSerieName(serie.name);
 
-	book.serieId = serie.id;
-	book.seriesPosition = seriesInfo.position;
-	book.seriesDetected = true;
-
-	await book.save();
+		if (normalizedTitle.includes(normalizedSerieName)) {
+			book.serieId = serie.id;
+			book.seriesDetected = true;
+			await book.save();
+			return book;
+		}
+	}
 
 	return book;
 }
