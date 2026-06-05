@@ -5,45 +5,36 @@ import { UserBook, Book, Author, BookAuthor, Serie } from "../models/index.js";
 export const bookController = {
 	// Search in Google catalog
 	async search(req, res) {
-		try {
-			const { q } = req.query;
-			if (!q || q.trim().length < 2) return res.json([]);
+    try {
+        const { q } = req.query;
+        if (!q || q.trim().length < 2) return res.json([]);
 
-			// Detect author search
-			let searchQuery = q.trim();
-			if (searchQuery.startsWith("auteur:")) {
-				const authorName = searchQuery.replace("auteur:", "").trim();
-				searchQuery = `inauthor:${authorName}`;
-			}
+        const booksFromGoogle = await GoogleBooksService.search(q.trim());
 
-			const booksFromGoogle = await GoogleBooksService.searchRaw(searchQuery);
+        let libraryGoogleIds = [];
+        if (req.user) {
+            const userBooks = await UserBook.findAll({
+                where: { userId: req.user.id },
+                include: {
+                    model: Book,
+                    as: "book",
+                    attributes: ["googleBooksId"],
+                },
+            });
+            libraryGoogleIds = userBooks.map((userBook) => userBook.book.googleBooksId);
+        }
 
-			let libraryGoogleIds = [];
-			if (req.user) {
-				const userBooks = await UserBook.findAll({
-					where: { userId: req.user.id },
-					include: {
-						model: Book,
-						as: "book",
-						attributes: ["googleBooksId"],
-					},
-				});
-				libraryGoogleIds = userBooks.map(
-					(userBook) => userBook.book.googleBooksId,
-				);
-			}
+        const books = booksFromGoogle.map((book) => ({
+            ...book,
+            isInLibrary: libraryGoogleIds.includes(book.googleBooksId),
+        }));
 
-			const books = booksFromGoogle.map((book) => ({
-				...book,
-				isInLibrary: libraryGoogleIds.includes(book.googleBooksId),
-			}));
-
-			res.json(books);
-		} catch (error) {
-			console.error(error);
-			res.status(500).json({ error: "Erreur lors de la recherche de livres" });
-		}
-	},
+        res.json(books);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Erreur lors de la recherche de livres" });
+    }
+},
 	// Google catalog book details
 	async getByGoogleId(req, res) {
 		try {
