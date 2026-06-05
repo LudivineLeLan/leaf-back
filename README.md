@@ -1,80 +1,104 @@
-# 🍃 Leaf
+# Leaf - Backend
 
-**Leaf** est une application *mobile-first* conçue pour aider les lecteurs à suivre et organiser leurs lectures, qu’il s’agisse de **livres, BD ou mangas**.
+API REST pour l'application Leaf, une bibliothèque personnelle de livres et mangas.
 
-Inspirée par des outils comme *TV Time*, Leaf met l’accent sur le **suivi de progression**, les **statistiques de lecture** et une expérience utilisateur simple, moderne et sans distraction.
+## Stack technique
 
----
+- **Node.js** avec Express
+- **PostgreSQL** avec Sequelize ORM
+- **JWT** pour l'authentification
+- **node-cron** pour les notifications automatiques
+- **Google Books API** pour les données de livres
 
-## ✨ Fonctionnalités (MVP)
+## Prérequis
 
-- 📚 Suivi des livres, BD et mangas
-- 📖 Statuts de lecture : *À lire*, *En cours*, *Terminé*
-- 📊 Suivi de progression (pages, tomes, séries)
-- 📈 Statistiques personnelles de lecture
-- 🔍 Recherche d’ouvrages via des APIs publiques (ISBN / titre)
-- 📱 Expérience pensée en priorité pour le mobile
-
----
-
-## 🛠️ Stack technique (prévisionnelle)
-
-### Frontend
-- React 
-- TypeScript
-- UI mobile-first
-
-### Backend
-- Node.js (Express)
+- Node.js v20+
 - PostgreSQL
-- API REST
+- Une clé API Google Books
 
-### Autres
-- Authentification (Email / OAuth)
-- APIs externes (Google Books, Open Library)
-- Prêt pour l’internationalisation (anglais par défaut, français prévu)
+## Installation
 
----
+```bash
+npm install
+```
 
-## 🌍 Internationalisation
+## Configuration
 
-Leaf est conçu dès le départ pour supporter plusieurs langues.
-- Langue par défaut : **anglais**
-- Autres langues prévues : **français**
+Crée un fichier `.env` à la racine :
 
----
+```env
+PORT=3000
+DB_URL=postgres://user:password@localhost:5432/leaf
+JWT_SECRET=ton_secret
+GOOGLE_BOOKS_API_KEY=ta_clé
+```
 
-## 🚧 État du projet
+## Base de données
 
-🟡 **Début de développement**  
-Les fondations techniques et les fonctionnalités principales sont en cours de mise en place.
+```bash
+# Créer les tables
+node src/migrations/create-tables.js
 
----
+# Insérer les données de test
+node src/migrations/seed-tables.js
+```
 
-## 🗺️ Roadmap (vue d’ensemble)
+## Lancer le serveur
 
-- [ ] Initialisation du projet & architecture
-- [ ] Authentification utilisateur
-- [ ] Catalogue & recherche de livres
-- [ ] Suivi de la progression de lecture
-- [ ] Statistiques & insights
-- [ ] Notifications & rappels
-- [ ] Finitions UI/UX
+```bash
+npm run dev
+```
 
----
+## Routes principales
 
-## 📌 Pourquoi Leaf ?
+### Auth
+- `POST /auth/register` — Créer un compte
+- `POST /auth/login` — Se connecter
+- `POST /auth/logout` — Se déconnecter
+- `GET /auth/me` — Profil utilisateur connecté
 
-Les plateformes existantes sont souvent trop orientées social, ou manquent d’un suivi précis de la lecture.
-Leaf vise à être :
-- simple
-- focalisé
-- centré sur le lecteur
+### Livres
+- `GET /books/search?q=` — Rechercher dans Google Books
+- `POST /books/import` — Importer un livre
+- `GET /books/id/:bookId` — Détail d'un livre
 
-Lire. Suivre. Progresser.
+### Bibliothèque
+- `GET /library` — Tous les livres de l'utilisateur
+- `GET /library/overview` — Livres groupés par série
+- `POST /library/:bookId` — Ajouter un livre
+- `PUT /library/:bookId` — Mettre à jour le statut
+- `DELETE /library/:bookId` — Retirer un livre
 
----
+### Séries
+- `GET /serie/:id` — Détail d'une série avec tous les tomes
+- `PATCH /serie/:id` — Mettre à jour le nombre de tomes
 
-## 📄 Licence
+### Auteurs
+- `GET /authors/:authorId` — Détail d'un auteur avec ses livres
 
-Projet réalisé à des fins personnelles et éducatives.
+### Suivi
+- `GET /follows` — Séries et auteurs suivis
+- `POST /follows/serie/:serieId` — Suivre une série
+- `DELETE /follows/serie/:serieId` — Ne plus suivre une série
+- `POST /follows/author/:authorId` — Suivre un auteur
+- `DELETE /follows/author/:authorId` — Ne plus suivre un auteur
+
+### Notifications
+- `GET /notifications` — Toutes les notifications
+- `GET /notifications/unread` — Nombre de notifications non lues
+- `PUT /notifications/read` — Marquer comme lues
+- `POST /notifications/check` — Déclencher une vérification manuelle
+
+### Stats
+- `GET /stats` — Statistiques de lecture
+
+## Fonctionnalités clés
+
+### Détection automatique de séries
+Lors de l'import d'un livre, le titre est analysé pour détecter s'il fait partie d'une série. Les patterns détectés incluent "Tome X", "Vol. X", "T01", etc.
+
+### Notifications de nouvelles parutions
+Un job cron tourne toutes les 24h et vérifie via Google Books si de nouveaux livres ont été publiés pour les séries et auteurs suivis par les utilisateurs.
+
+### Données communautaires
+Le nombre de tomes d'une série peut être renseigné par n'importe quel utilisateur et bénéficie à toute la communauté.
