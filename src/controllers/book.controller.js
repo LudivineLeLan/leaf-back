@@ -5,36 +5,38 @@ import { UserBook, Book, Author, BookAuthor, Serie } from "../models/index.js";
 export const bookController = {
 	// Search in Google catalog
 	async search(req, res) {
-    try {
-        const { q } = req.query;
-        if (!q || q.trim().length < 2) return res.json([]);
+		try {
+			const { q } = req.query;
+			if (!q || q.trim().length < 2) return res.json([]);
 
-        const booksFromGoogle = await GoogleBooksService.search(q.trim());
+			const booksFromGoogle = await GoogleBooksService.search(q.trim());
 
-        let libraryGoogleIds = [];
-        if (req.user) {
-            const userBooks = await UserBook.findAll({
-                where: { userId: req.user.id },
-                include: {
-                    model: Book,
-                    as: "book",
-                    attributes: ["googleBooksId"],
-                },
-            });
-            libraryGoogleIds = userBooks.map((userBook) => userBook.book.googleBooksId);
-        }
+			let libraryGoogleIds = [];
+			if (req.user) {
+				const userBooks = await UserBook.findAll({
+					where: { userId: req.user.id },
+					include: {
+						model: Book,
+						as: "book",
+						attributes: ["googleBooksId"],
+					},
+				});
+				libraryGoogleIds = userBooks.map(
+					(userBook) => userBook.book.googleBooksId,
+				);
+			}
 
-        const books = booksFromGoogle.map((book) => ({
-            ...book,
-            isInLibrary: libraryGoogleIds.includes(book.googleBooksId),
-        }));
+			const books = booksFromGoogle.map((book) => ({
+				...book,
+				isInLibrary: libraryGoogleIds.includes(book.googleBooksId),
+			}));
 
-        res.json(books);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Erreur lors de la recherche de livres" });
-    }
-},
+			res.json(books);
+		} catch (error) {
+			console.error(error);
+			res.status(500).json({ error: "Erreur lors de la recherche de livres" });
+		}
+	},
 	// Google catalog book details
 	async getByGoogleId(req, res) {
 		try {
@@ -126,6 +128,8 @@ export const bookController = {
 	async getBookById(req, res) {
 		try {
 			const { bookId } = req.params;
+			console.log("req.user:", req.user);
+			console.log("bookId:", bookId);
 
 			const book = await Book.findByPk(bookId, {
 				include: [
@@ -145,6 +149,7 @@ export const bookController = {
 				const userBook = await UserBook.findOne({
 					where: { userId: req.user.id, bookId },
 				});
+				console.log("userBook:", userBook);
 				isInLibrary = !!userBook;
 				userStatus = userBook?.status || null;
 			}
