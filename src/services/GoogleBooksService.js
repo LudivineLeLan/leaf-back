@@ -10,22 +10,23 @@ class GoogleBooksService {
 	 * @returns {Promise<Array>} - List of books
 	 */
 	async search(query, maxResults = 10) {
-    try {
-        const url = `${this.baseURL}?q=${encodeURIComponent(query)}&maxResults=${maxResults}&key=${process.env.GOOGLE_BOOKS_API_KEY}`;
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`Google Books API error: ${response.status}`);
-        const data = await response.json();
-        if (!data.items || data.items.length === 0) return [];
-        return data.items.map((book) => this.formatBook(book));
-    } catch (error) {
-        console.error("Error searching books:", error.message);
-        throw error;
-    }
-}
+		try {
+			const url = `${this.baseURL}?q=${encodeURIComponent(query)}&maxResults=${maxResults}&key=${process.env.GOOGLE_BOOKS_API_KEY}`;
+			const response = await fetch(url);
+			if (!response.ok)
+				throw new Error(`Google Books API error: ${response.status}`);
+			const data = await response.json();
+			if (!data.items || data.items.length === 0) return [];
+			return data.items.map((book) => this.formatBook(book));
+		} catch (error) {
+			console.error("Error searching books:", error.message);
+			throw error;
+		}
+	}
 
 	async searchRaw(query, maxResults = 10) {
 		try {
-			const url = `${this.baseURL}?q=${encodeURIComponent(query)}&maxResults=${maxResults}&key=${process.env.GOOGLE_BOOKS_API_KEY}`;
+			const url = `${this.baseURL}?q=${encodeURIComponent(query)}&maxResults=${maxResults}&hl=fr&key=${process.env.GOOGLE_BOOKS_API_KEY}`;
 			const response = await fetch(url);
 			if (!response.ok)
 				throw new Error(`Google Books API error: ${response.status}`);
