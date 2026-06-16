@@ -9,17 +9,18 @@ class GoogleBooksService {
 	 * @param {number} maxResults - Results (default: max 10)
 	 * @returns {Promise<Array>} - List of books
 	 */
-	async search(query, maxResults = 10, acceptLanguage = "fr") {
+	async search(query, maxResults = 10) {
 		try {
 			const url = `${this.baseURL}?q=${encodeURIComponent(query)}&maxResults=${maxResults}&key=${process.env.GOOGLE_BOOKS_API_KEY}`;
-			const response = await fetch(url, {
-				headers: { "Accept-Language": acceptLanguage },
-			});
+			const response = await fetch(url);
+
 			if (!response.ok)
 				throw new Error(`Google Books API error: ${response.status}`);
 			const data = await response.json();
 			if (!data.items || data.items.length === 0) return [];
-			return data.items.map((book) => this.formatBook(book));
+			return data.items
+				.map((book) => this.formatBook(book))
+				.filter((book) => ["fr", "ja", "en"].includes(book.language));
 		} catch (error) {
 			console.error("Error searching books:", error.message);
 			throw error;
@@ -85,5 +86,4 @@ class GoogleBooksService {
 		return isbn ? isbn.identifier : null;
 	}
 }
-
 export default new GoogleBooksService();

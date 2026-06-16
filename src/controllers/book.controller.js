@@ -9,12 +9,7 @@ export const bookController = {
 			const { q } = req.query;
 			if (!q || q.trim().length < 2) return res.json([]);
 
-			const acceptLanguage = req.headers["accept-language"] || "fr";
-			const booksFromGoogle = await GoogleBooksService.search(
-				q.trim(),
-				10,
-				acceptLanguage,
-			);
+			const booksFromGoogle = await GoogleBooksService.search(q.trim(), 10);
 
 			let libraryGoogleIds = [];
 			if (req.user) {
