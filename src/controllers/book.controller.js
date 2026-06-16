@@ -9,7 +9,12 @@ export const bookController = {
 			const { q } = req.query;
 			if (!q || q.trim().length < 2) return res.json([]);
 
-			const booksFromGoogle = await GoogleBooksService.search(q.trim());
+			const acceptLanguage = req.headers["accept-language"] || "fr";
+			const booksFromGoogle = await GoogleBooksService.search(
+				q.trim(),
+				10,
+				acceptLanguage,
+			);
 
 			let libraryGoogleIds = [];
 			if (req.user) {
@@ -37,6 +42,7 @@ export const bookController = {
 			res.status(500).json({ error: "Erreur lors de la recherche de livres" });
 		}
 	},
+
 	// Google catalog book details
 	async getByGoogleId(req, res) {
 		try {
