@@ -3,79 +3,50 @@ import GoogleBooksService from "../services/GoogleBooksService.js";
 import { extractSeriesInfo } from "../services/series.service.js";
 
 async function getSerieById(req, res) {
-	try {
-		const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-		const serie = await Serie.findByPk(id, {
-			include: [
-				{
-					model: Book,
-					as: "books",
-					include: [
-						{ model: Author, as: "authors", through: { attributes: [] } },
-					],
-				},
-			],
-		});
+    const serie = await Serie.findByPk(id, {
+      include: [
+        {
+          model: Book,
+          as: "books",
+          include: [
+            { model: Author, as: "authors", through: { attributes: [] } },
+          ],
+        },
+      ],
+    });
 
-		if (!serie) return res.status(404).json({ message: "Serie not found" });
+    if (!serie) return res.status(404).json({ message: "Serie not found" });
 
-		const cleanName = serie.name.replace(/[-–]\s*$/, "").trim();
-		const books = serie.books || [];
+    const cleanName = serie.name.replace(/[-–]\s*$/, "").trim();
+    const books = serie.books || [];
 
-		const authorNames = [
-			...new Set(
-				books
-					.flatMap((book) => book.authors || [])
-					.map((author) => `${author.firstname || ""} ${author.name}`.trim()),
-			),
-		];
+    const authorNames = [
+      ...new Set(
+        books
+          .flatMap((book) => book.authors || [])
+          .map((author) => `${author.firstname || ""} ${author.name}`.trim()),
+      ),
+    ];
 
-		const searchQuery =
-			authorNames.length > 0 ? `${cleanName} ${authorNames[0]}` : cleanName;
-
-		const googleResults = await GoogleBooksService.search(searchQuery, 40);
-
-		const seen = new Set();
-		const uniqueResults = googleResults.filter((book) => {
-			if (seen.has(book.googleBooksId)) return false;
-			seen.add(book.googleBooksId);
-			// Keep only books whose title starts with the serie name
-			return book.title.toLowerCase().startsWith(cleanName.toLowerCase());
-		});
-
-		const allVolumes = uniqueResults
-			.map((googleBook) => {
-				const seriesInfo = extractSeriesInfo(googleBook.title);
-				const bookInLibrary = books.find(
-					(book) => book.googleBooksId === googleBook.googleBooksId,
-				);
-				return {
-					googleBooksId: googleBook.googleBooksId,
-					title: googleBook.title,
-					cover: googleBook.thumbnail,
-					seriesPosition:
-						bookInLibrary?.seriesPosition || seriesInfo?.position || null,
-					isInLibrary: !!bookInLibrary,
-					libraryBookId: bookInLibrary?.id || null,
-				};
-			})
-			.sort((a, b) => {
-				if (a.seriesPosition === null) return 1;
-				if (b.seriesPosition === null) return -1;
-				return a.seriesPosition - b.seriesPosition;
-			});
-
-		return res.json({
-			id: serie.id,
-			name: cleanName,
-			total_volumes: serie.total_volumes,
-			volumes: allVolumes,
-		});
-	} catch (error) {
-		console.error(error);
-		return res.status(500).json({ message: "Internal server error" });
-	}
+    // Send serie data + author name for frontend Google Books search
+    return res.json({
+      id: serie.id,
+      name: cleanName,
+      total_volumes: serie.total_volumes,
+      searchQuery: authorNames.length > 0 ? `${cleanName} ${authorNames[0]}` : cleanName,
+      libraryBooks: books.map((book) => ({
+        googleBooksId: book.googleBooksId,
+        id: book.id,
+        seriesPosition: book.seriesPosition,
+      })),
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 }
 
 async function updateSerie(req, res) {

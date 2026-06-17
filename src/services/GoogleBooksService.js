@@ -18,9 +18,7 @@ class GoogleBooksService {
 				throw new Error(`Google Books API error: ${response.status}`);
 			const data = await response.json();
 			if (!data.items || data.items.length === 0) return [];
-			return data.items
-				.map((book) => this.formatBook(book))
-				.filter((book) => ["fr", "ja", "en"].includes(book.language));
+			return data.items.map((book) => this.formatBook(book));
 		} catch (error) {
 			console.error("Error searching books:", error.message);
 			throw error;
