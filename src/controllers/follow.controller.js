@@ -51,7 +51,6 @@ export const followController = {
 
 			const [userAuthor, created] = await UserAuthor.findOrCreate({
 				where: { userId, authorId },
-				defaults: { userId, authorId },
 			});
 
 			if (!created) {

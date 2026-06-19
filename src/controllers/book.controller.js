@@ -56,7 +56,7 @@ export const bookController = {
 					},
 				});
 
-				book.isInLibrary = !!userBook;
+				book.isInLibrary = !!userBook; // ! converts any value in boolean
 			} else {
 				book.isInLibrary = false;
 			}
@@ -70,7 +70,7 @@ export const bookController = {
 
 	async importBook(req, res) {
 		try {
-			const { googleBooksId, title, authors, thumbnail } = req.body;
+			const { googleBooksId, title, thumbnail } = req.body;
 
 			if (!googleBooksId) {
 				return res.status(400).json({ message: "googleBooksId requis" });
@@ -94,11 +94,11 @@ export const bookController = {
 			if (created) {
 				try {
 					await attachSerieToBook(book);
-				} catch (err) {
-					console.error("Erreur attachSerieToBook :", err.message);
+				} catch (error) {
+					console.error("Erreur attachSerieToBook :", error.message);
 				}
 
-				// Create authors
+				// Create authors with split for name & firstname in db
 				if (googleData.authors?.length > 0) {
 					for (const authorName of googleData.authors) {
 						const parts = authorName.trim().split(" ");
@@ -129,8 +129,6 @@ export const bookController = {
 	async getBookById(req, res) {
 		try {
 			const { bookId } = req.params;
-			console.log("req.user:", req.user);
-			console.log("bookId:", bookId);
 
 			const book = await Book.findByPk(bookId, {
 				include: [
@@ -152,7 +150,7 @@ export const bookController = {
 				});
 				console.log("userBook:", userBook);
 				isInLibrary = !!userBook;
-				userStatus = userBook?.status || null;
+				userStatus = userBook?.status || null; // access status only if userBook exists
 			}
 
 			return res.json({ ...book.toJSON(), isInLibrary, userStatus });

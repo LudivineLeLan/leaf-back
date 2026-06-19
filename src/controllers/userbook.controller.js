@@ -12,6 +12,7 @@ export const userBookController = {
 			const searchTerm = q.trim();
 			const words = searchTerm.split(/\s+/);
 
+			//allows to create many filters SQL for Sequelize to search for results containing one of query terms
 			const authorConditions = words.flatMap((word) => [
 				{ "$book.authors.name$": { [Op.iLike]: `%${word}%` } },
 				{ "$book.authors.firstname$": { [Op.iLike]: `%${word}%` } },
@@ -246,7 +247,7 @@ export const userBookController = {
 						});
 					}
 					const serieData = seriesMap.get(book.serie.id);
-					serieData.booksOwned += 1;
+					serieData.booksOwned += 1; //to create list of books in serie
 					serieData.books.push({
 						id: book.id,
 						title: book.title,

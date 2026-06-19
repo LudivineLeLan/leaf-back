@@ -32,6 +32,7 @@ export const authController = {
 			});
 		} catch (error) {
 			if (error.isJoi) {
+				// test if error from Joi schema
 				return res.status(400).json({ error: error.details[0].message });
 			}
 			console.error("Error register:", error);
@@ -62,10 +63,10 @@ export const authController = {
 			});
 
 			res.cookie("token", token, {
-				httpOnly: true,
+				httpOnly: true, //prevent access to cookie from browser
 				secure: process.env.NODE_ENV === "production",
 				sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
-				maxAge: 7 * 24 * 60 * 60 * 1000,
+				maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
 			});
 
 			return res.status(200).json({

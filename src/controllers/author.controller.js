@@ -25,8 +25,8 @@ export const authorController = {
 			// Search Google Books by author name
 			const googleResults = await GoogleBooksService.search(fullName, 40);
 
-			// Deduplicate
-			const seen = new Set();
+			// Deduplicate to delete doubles
+			const seen = new Set(); //set contains only unique values
 			const uniqueResults = googleResults.filter((book) => {
 				if (seen.has(book.googleBooksId)) return false;
 				seen.add(book.googleBooksId);
@@ -44,12 +44,15 @@ export const authorController = {
 						attributes: ["googleBooksId"],
 					},
 				});
-				libraryGoogleIds = userBooks.map((ub) => ub.book.googleBooksId);
+				libraryGoogleIds = userBooks.map(
+					(userBook) => userBook.book.googleBooksId,
+				);
 			}
 
 			const books = uniqueResults
 				.filter((book) =>
 					book.authors?.some(
+						//some = check if at least one element in array matches the condition
 						(author) =>
 							author.toLowerCase().includes(fullName.toLowerCase()) ||
 							fullName.toLowerCase().includes(author.toLowerCase()),
