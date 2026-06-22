@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 
 export function authenticate(req, res, next) {
-	const token = req.cookies?.token;
+	const token = req.cookies?.token; //optional cookie
 
 	if (!token) {
 		return res.status(401).json({ error: "Accès refusé" });
@@ -16,6 +16,7 @@ export function authenticate(req, res, next) {
 	}
 }
 
+// for authorized access without logged user
 export function optionalAuthenticate(req, res, next) {
 	const token = req.cookies?.token;
 
