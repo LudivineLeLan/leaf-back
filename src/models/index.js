@@ -13,9 +13,7 @@ import { sequelize } from "./sequelize.client.js";
 import { UserAuthor } from "./userAuthor.model.js";
 import { Notification } from "./notification.model.js";
 
-/*
-   USER <-> BOOK
-*/
+/* USER <-> BOOK */
 
 User.belongsToMany(Book, {
 	through: UserBook,
@@ -49,9 +47,7 @@ UserBook.belongsTo(Book, {
 	as: "book",
 });
 
-/*
-   SERIE <-> BOOK
-*/
+/* SERIE <-> BOOK */
 
 Serie.hasMany(Book, {
 	foreignKey: "serieId",
@@ -63,9 +59,7 @@ Book.belongsTo(Serie, {
 	as: "serie",
 });
 
-/*
-   GENRE <-> SERIE
-*/
+/* GENRE <-> SERIE */
 
 Genre.belongsToMany(Serie, {
 	through: SerieGenre,
@@ -79,9 +73,7 @@ Serie.belongsToMany(Genre, {
 	as: "genres",
 });
 
-/*
-   GENRE <-> BOOK
-*/
+/* GENRE <-> BOOK */
 
 Genre.belongsToMany(Book, {
 	through: BookGenre,
@@ -95,9 +87,7 @@ Book.belongsToMany(Genre, {
 	as: "genres",
 });
 
-/*
-   AUTHOR <-> SERIE
-*/
+/* AUTHOR <-> SERIE */
 
 Author.belongsToMany(Serie, {
 	through: SerieAuthor,
@@ -111,9 +101,7 @@ Serie.belongsToMany(Author, {
 	as: "authors",
 });
 
-/*
-   AUTHOR <-> BOOK
-*/
+/* AUTHOR <-> BOOK */
 
 Author.belongsToMany(Book, {
 	through: BookAuthor,
@@ -127,9 +115,7 @@ Book.belongsToMany(Author, {
 	as: "authors",
 });
 
-/* 
-   USER <-> SERIE
-*/
+/* USER <-> SERIE */
 
 User.belongsToMany(Serie, {
 	through: UserSerie,
@@ -163,7 +149,7 @@ UserSerie.belongsTo(Serie, {
 	as: "serie",
 });
 
-// USER <-> AUTHOR (suivi)
+// USER <-> AUTHOR (followed)
 User.belongsToMany(Author, {
 	through: UserAuthor,
 	foreignKey: "userId",
