@@ -1,4 +1,5 @@
 import { Serie } from "../models/index.js";
+import { Op } from "sequelize";
 
 /**
  * Normalize serie's name to avoid doubles
@@ -84,18 +85,18 @@ async function attachSerieToBook(book) {
 	}
 
 	// No pattern — try to match with existing series by name
-	const allSeries = await Serie.findAll();
-	for (const serie of allSeries) {
-		const normalizedTitle = normalizeSerieName(book.title);
-		const normalizedSerieName =
-			serie.normalizedName || normalizeSerieName(serie.name);
+	const normalizedTitle = normalizeSerieName(book.title);
 
-		if (normalizedTitle.includes(normalizedSerieName)) {
-			book.serieId = serie.id;
-			book.seriesDetected = true;
-			await book.save();
-			return book;
-		}
+	const matchingSerie = await Serie.findOne({
+		where: {
+			normalizedName: { [Op.iLike]: `%${normalizedTitle}%` },
+		},
+	});
+
+	if (matchingSerie) {
+		book.serieId = matchingSerie.id;
+		book.seriesDetected = true;
+		await book.save();
 	}
 
 	return book;
