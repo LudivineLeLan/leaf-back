@@ -36,7 +36,7 @@ class GoogleBooksService {
 			const response = await fetch(url);
 
 			if (!response.ok) {
-				throw new Error(`Book not found: ${googleBooksId}`);
+				throw new Error(`Google Books API error: ${response.status}`);
 			}
 
 			const data = await response.json();
